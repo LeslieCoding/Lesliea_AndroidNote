@@ -99,6 +99,19 @@ public final class StrokeSmoother {
 
     private boolean filterEnabled;
     private float stabilizerRadius = 0f;
+    /**
+     * v3.2.4: the pull-string radius is expressed in page units, but hand
+     * jitter is a physical/screen-space phenomenon — the same hand movement
+     * is the same number of device pixels at every zoom, yet a shrinking
+     * number of page units as you zoom in. A FIXED page-unit radius therefore
+     * over-damps at deep zoom: at 1000% the fountain pen's 2.4 units is ~30
+     * screen px, so any stroke shorter than that is held on the anchor and
+     * never emitted ("整段识别不出"). Dividing the radius by the zoom level
+     * keeps the damping constant in screen pixels at every zoom and lets
+     * deep-zoom short strokes be followed again. 1 = fit zoom (unchanged);
+     * 0.1 = 1000% zoom.
+     */
+    private float zoomScaleFactor = 1f;
 
     /**
      * X/Y must share one adaptive cutoff. Independent scalar 1€ filters open
@@ -131,6 +144,15 @@ public final class StrokeSmoother {
         filterPosition.configure(posFcmin, POS_BETA, DCUTOFF_HZ);
         filterPressure.configure(PRESSURE_MINCUTOFF_HZ, PRESSURE_BETA, DCUTOFF_HZ);
         stabilizerRadius = clamp01(preset.stabilization) * MAX_STABILIZER_RADIUS;
+    }
+
+    /**
+     * Scales the pull-string radius by 1/zoom (fit/current zoom, e.g. 0.1 at
+     * 1000%) so the damping stays constant in screen pixels at every zoom;
+     * see the {@code zoomScaleFactor} field doc.
+     */
+    public void setZoomScaleFactor(float factor) {
+        zoomScaleFactor = factor < 0f ? 0f : (factor > 1f ? 1f : factor);
     }
 
     public void reset() {
@@ -201,7 +223,11 @@ public final class StrokeSmoother {
                 lastRawTs = timestampMs;
                 float ramp = (STAB_RETRACT_SPEED - rawSpeed)
                         / (STAB_RETRACT_SPEED - STAB_FULL_SPEED);
-                float radius = stabilizerRadius * clamp01(ramp);
+                // v3.2.4: the radius is also divided by the zoom level so the
+                // damping is a constant number of screen pixels (see the field
+                // doc). Without this a deep-zoom stroke shorter than the
+                // page-unit radius is held on the anchor and never emitted.
+                float radius = stabilizerRadius * clamp01(ramp) * zoomScaleFactor;
                 if (radius > 0f) {
                     float dx = sx - anchorX;
                     float dy = sy - anchorY;

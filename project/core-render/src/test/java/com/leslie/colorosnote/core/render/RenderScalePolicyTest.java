@@ -133,15 +133,37 @@ public class RenderScalePolicyTest {
     @Test
     public void computeWindowExpandsAndRendersAtViewportResolution() {
         RenderScalePolicy.WindowSpec w = RenderScalePolicy.computeWindow(
-                8f, A4_W, A4_H, 100f, 200f, 300f, 500f);
-        // 15% margin per side: 200x300 -> 260x390 page units.
-        assertEquals(70f, w.left, 1e-3f);
-        assertEquals(155f, w.top, 1e-3f);
-        assertEquals(330f, w.right, 1e-3f);
-        assertEquals(545f, w.bottom, 1e-3f);
-        assertEquals(2080, w.pixelW);
-        assertEquals(3120, w.pixelH);
+                8f, A4_W, A4_H, 100f, 200f, 200f, 350f);
+        // 40% margin per side: 100x150 -> 180x270 page units (within byte cap).
+        assertEquals(60f, w.left, 1e-3f);
+        assertEquals(140f, w.top, 1e-3f);
+        assertEquals(240f, w.right, 1e-3f);
+        assertEquals(410f, w.bottom, 1e-3f);
+        assertEquals(1440, w.pixelW);
+        assertEquals(2160, w.pixelH);
         assertEquals(8f, w.scale, 1e-4f);
+        assertTrue((long) w.pixelW * w.pixelH * 4L
+                <= RenderScalePolicy.MAX_WINDOW_BYTES);
+    }
+
+    @Test
+    public void oppoPadDeepZoomKeepsFullDeviceResolution() {
+        // v3.2.7 regression lock: at 1000% on the OPPO Pad (1600x2560 view)
+        // the window MUST keep the full viewport pixel scale — the old code
+        // byte-shrunk it to ~0.87x, making committed ink visibly softer than
+        // the live stroke ("写完平移后笔迹变化"). Resolution now wins over
+        // coverage: the margin gives way instead of the pixel scale.
+        float scale = 12.5f; // 1000% on this device (fit ~1.25)
+        float visL = 300f, visT = 400f;
+        float visR = visL + 1600f / scale; // 128 pu wide
+        float visB = visT + 2560f / scale; // 204.8 pu tall
+        RenderScalePolicy.WindowSpec w = RenderScalePolicy.computeWindow(
+                scale, A4_W, A4_H, visL, visT, visR, visB);
+        assertEquals("window must stay at full device resolution",
+                scale, w.scale, 1e-4f);
+        // 0.40 margin per side => 1.8x the view in each dimension.
+        assertEquals(Math.round(1600f * 1.8f), w.pixelW, 1f);
+        assertEquals(Math.round(2560f * 1.8f), w.pixelH, 1f);
         assertTrue((long) w.pixelW * w.pixelH * 4L
                 <= RenderScalePolicy.MAX_WINDOW_BYTES);
     }
@@ -182,18 +204,18 @@ public class RenderScalePolicyTest {
     @Test
     public void windowCoversSmallPanButNotLarge() {
         RenderScalePolicy.WindowSpec w = RenderScalePolicy.computeWindow(
-                8f, A4_W, A4_H, 100f, 200f, 300f, 500f);
+                8f, A4_W, A4_H, 100f, 200f, 200f, 350f);
         // Pan 10 units right: still inside (slack fires before the edge).
         assertTrue(RenderScalePolicy.windowCovers(w, A4_W, A4_H,
-                110f, 200f, 310f, 500f, 8f));
-        // Pan 30 units right: visible edge crosses window edge minus slack.
+                110f, 200f, 210f, 350f, 8f));
+        // Pan 60 units right: visible edge crosses window edge minus slack.
         assertFalse(RenderScalePolicy.windowCovers(w, A4_W, A4_H,
-                130f, 200f, 330f, 500f, 8f));
+                160f, 200f, 260f, 350f, 8f));
         // Zoom drift within 5% is fine; past it re-renders.
         assertTrue(RenderScalePolicy.windowCovers(w, A4_W, A4_H,
-                100f, 200f, 300f, 500f, 8.1f));
+                100f, 200f, 200f, 350f, 8.1f));
         assertFalse(RenderScalePolicy.windowCovers(w, A4_W, A4_H,
-                100f, 200f, 300f, 500f, 8.5f));
+                100f, 200f, 200f, 350f, 8.5f));
     }
 
     @Test

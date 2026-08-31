@@ -44,10 +44,29 @@ public final class RenderScalePolicy {
     /** Hard ceiling so bitmaps stay below the 8192px GPU texture limit. */
     static final float TEXTURE_GUARD = 8f;
 
-    /** Per-side expansion of the viewport window, as a fraction of its size. */
-    static final float WINDOW_MARGIN = 0.15f;
-    /** Byte cap for the window bitmap (not part of the 48MB page LRU). */
-    static final long MAX_WINDOW_BYTES = 32L * 1024 * 1024;
+    /**
+     * Per-side expansion of the viewport window, as a fraction of its size.
+     *
+     * <p>v3.2.6: raised from 0.15 so a normal pan after writing at deep zoom is
+     * absorbed entirely by the sharp window — the revealed strip that used to
+     * show the soft full-page base (upscaled ~2.7x at 1000%) is what the user
+     * read as "写完平移后笔迹变化". v3.2.7 keeps the target at 0.40 and, with
+     * the raised {@link #MAX_WINDOW_BYTES}, the window stays at FULL device
+     * resolution on the OPPO Pad (1.8x the view, ~53MB) instead of being
+     * byte-shrunk to ~0.87x res — a shrunk window made committed ink visibly
+     * softer than the live stroke the user was just looking at.
+     */
+    static final float WINDOW_MARGIN = 0.40f;
+    /**
+     * Byte cap for the window bitmap (not part of the 48MB page LRU).
+     *
+     * <p>v3.2.7: raised from 32MB so the window renders at full device
+     * resolution at deep zoom. The window must be exactly as sharp as the
+     * live ink; the old 32MB cap forced ~0.87x res at 1000% on the 1600x2560
+     * OPPO Pad, which is what read as "写完平移后笔迹变化" (ink softens the
+     * moment the viewport re-renders it).
+     */
+    static final long MAX_WINDOW_BYTES = 64L * 1024 * 1024;
     /**
      * Window-mode entry: engage as soon as the zoom passes the baked scale
      * (v1.4.15). The old TRIGGER_FACTOR (1.25) entry left a blur band —
@@ -152,47 +171,80 @@ public final class RenderScalePolicy {
 
     /**
      * Window render target for the current view: the visible page rect
-     * expanded by WINDOW_MARGIN per side and clamped to the page, at viewport
-     * resolution. Pixels ≈ viewPx·(1+2·margin) regardless of zoom. If even
-     * that exceeds {@link #MAX_WINDOW_BYTES} the margin is dropped, and as a
-     * last resort the pixel scale is shrunk (slightly soft, bounded memory).
+     * expanded by {@link #WINDOW_MARGIN} per side and clamped to the page,
+     * at device resolution. Pixels ≈ viewPx·(1+2·margin) regardless of zoom.
+     *
+     * <p>v3.2.7 resolution-first policy: the window bitmap must be exactly as
+     * sharp as the live stroke, otherwise committed ink visibly softens the
+     * moment the viewport re-renders it after a pan. So when the full-margin
+     * window would exceed {@link #MAX_WINDOW_BYTES}, the MARGIN is reduced
+     * first (keeping device resolution); the pixel scale is shrunk only as a
+     * last resort, when even the bare visible region cannot fit (huge
+     * screens). The old code shrank the scale first, which at 1000% on the
+     * OPPO Pad forced ~0.87x res and made ink softer after every pan.
      */
     public static WindowSpec computeWindow(float viewportScale,
                                            float pageW, float pageH,
                                            float visL, float visT,
                                            float visR, float visB) {
-        float mx = (visR - visL) * WINDOW_MARGIN;
-        float my = (visB - visT) * WINDOW_MARGIN;
+        float visW = visR - visL;
+        float visH = visB - visT;
+        // Visible region misses the page: keep a minimal valid target.
+        if (visW < 1e-3f || visH < 1e-3f) {
+            float l = clamp(visL, 0f, pageW);
+            float t = clamp(visT, 0f, pageH);
+            float r = Math.min(pageW, l + 1f);
+            float b = Math.min(pageH, t + 1f);
+            int pw = Math.max(1, Math.round((r - l) * viewportScale));
+            int ph = Math.max(1, Math.round((b - t) * viewportScale));
+            return new WindowSpec(l, t, r, b, viewportScale, pw, ph);
+        }
+        float scale = viewportScale;
+        long capPx = MAX_WINDOW_BYTES / 4;
+        float a = visW * viewportScale; // visible region, device px
+        float b = visH * viewportScale;
+        float margin = WINDOW_MARGIN;
+        if (a * b > capPx) {
+            // Huge view: even the bare visible region at device res exceeds
+            // the cap. Reduce the pixel scale (slightly soft, bounded
+            // memory); the window still covers the whole visible region.
+            float shrink = (float) Math.sqrt((double) capPx / (a * b));
+            scale *= shrink;
+            a = visW * scale;
+            b = visH * scale;
+            margin = 0f;
+        } else {
+            // Keep device resolution; give up margin only as far as the byte
+            // cap requires (a normal pan must stay covered by the sharp
+            // window, but sharpness takes precedence over coverage).
+            float mMax = (float) (Math.sqrt((double) capPx / (a * b)) - 1.0) * 0.5f;
+            if (mMax < margin) {
+                margin = Math.max(0f, mMax);
+            }
+        }
+        float mx = visW * margin;
+        float my = visH * margin;
         float l = clamp(visL - mx, 0f, pageW);
         float t = clamp(visT - my, 0f, pageH);
         float r = clamp(visR + mx, 0f, pageW);
-        float b = clamp(visB + my, 0f, pageH);
-        if (r - l < 1e-3f || b - t < 1e-3f) {
-            // Visible region misses the page: keep a minimal valid target.
+        float btm = clamp(visB + my, 0f, pageH);
+        if (r - l < 1e-3f || btm - t < 1e-3f) {
             l = clamp(visL, 0f, pageW);
             t = clamp(visT, 0f, pageH);
             r = Math.min(pageW, l + 1f);
-            b = Math.min(pageH, t + 1f);
+            btm = Math.min(pageH, t + 1f);
         }
-        int pw = Math.max(1, Math.round((r - l) * viewportScale));
-        int ph = Math.max(1, Math.round((b - t) * viewportScale));
-        float scale = viewportScale;
+        int pw = Math.max(1, Math.round((r - l) * scale));
+        int ph = Math.max(1, Math.round((btm - t) * scale));
         if ((long) pw * ph * 4L > MAX_WINDOW_BYTES) {
-            l = clamp(visL, 0f, pageW);
-            t = clamp(visT, 0f, pageH);
-            r = clamp(visR, 0f, pageW);
-            b = clamp(visB, 0f, pageH);
-            pw = Math.max(1, Math.round((r - l) * viewportScale));
-            ph = Math.max(1, Math.round((b - t) * viewportScale));
-            if ((long) pw * ph * 4L > MAX_WINDOW_BYTES) {
-                float shrink = (float) Math.sqrt(
-                        MAX_WINDOW_BYTES / (4.0 * pw * ph));
-                pw = Math.max(1, (int) (pw * shrink));
-                ph = Math.max(1, (int) (ph * shrink));
-                scale = pw / (r - l);
-            }
+            // Rounding pushed the bitmap a hair over the cap: shrink it.
+            float shrink = (float) Math.sqrt(
+                    (double) MAX_WINDOW_BYTES / (4.0 * pw * ph));
+            pw = Math.max(1, (int) (pw * shrink));
+            ph = Math.max(1, (int) (ph * shrink));
+            scale = pw / Math.max(1e-3f, r - l);
         }
-        return new WindowSpec(l, t, r, b, scale, pw, ph);
+        return new WindowSpec(l, t, r, btm, scale, pw, ph);
     }
 
     /**

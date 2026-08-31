@@ -337,4 +337,37 @@ public class BrushEngineTest {
             assertTrue("light-pressure width >= minWidth", w >= pen.minWidth * 0.99f);
         }
     }
+
+    @Test
+    public void tinyWidth_isRaisedToVisibleAtRealRenderScale() {
+        // v3.2.2: at the renderer's real device scale (fit zoom and deeper,
+        // always > 1 px per page unit) a 0.5pt body is ~0.95 px at fit zoom —
+        // anti-aliased to nothing, which read as "the thin pen sometimes
+        // doesn't register at all" (fountain pen with light pressure and
+        // short cursive strokes). The floor is applied BEFORE the tapers so
+        // the body is readable while the pen tip still fades out.
+        float scale = 1.9f; // fit-zoom device px per page unit
+        BrushPreset ball = BrushPreset.ballpoint();
+        ball.baseWidth = 0.5f;
+        ball.minWidth = 0.5f;
+        ball.maxWidth = 0.5f;
+        StrokeMesh mesh = BrushEngine.computeMesh(
+                straightLine(0f, 0f, 200f, 0.5f, 40), ball, scale);
+        for (float w : mesh.widths) {
+            assertTrue("0.5pt body lifted to >= 1 device px at fit zoom",
+                    w >= 1f / scale - 1e-3f);
+        }
+
+        BrushPreset pen = BrushPreset.fountainPen();
+        pen.baseWidth = 0.5f;
+        pen.minWidth = 0.5f * 0.4f;
+        pen.maxWidth = 0.5f * 1.9f;
+        pen.velocityToWidth = 0f;
+        StrokeMesh t = BrushEngine.computeMesh(
+                straightLine(0f, 0f, 40f, 0.5f, 40), pen, scale);
+        float mid = t.widths[t.pointCount() / 2];
+        assertTrue("taper tip is a real fade, much thinner than the body",
+                t.widths[0] < mid * 0.5f);
+        assertTrue("taper tip still has ink", t.widths[0] > 0f);
+    }
 }

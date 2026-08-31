@@ -156,18 +156,9 @@ public final class LiveOutlineBuilder {
     private final float[] midScratch = new float[4];
     /** Final device pixels per page unit for scale-adaptive tessellation. */
     private float pixelsPerPageUnit = 1f;
-    /**
-     * v2.2.2 live visibility floor (page units): the same 1-device-pixel
-     * minimum the commit-time mesh applies, so a thin pen at deep zoom does
-     * not draw a fainter live stroke than the one it commits to (the
-     * "thin fountain pen ink is barely there" half of the fast-cursive
-     * report). 0 when the scale is unknown (floor disabled).
-     */
-    private float minVisibleWidth;
 
     public void setPixelsPerPageUnit(float scale) {
         pixelsPerPageUnit = Float.isFinite(scale) && scale > 1f ? scale : 1f;
-        minVisibleWidth = BrushEngine.MIN_VISIBLE_WIDTH_PX / pixelsPerPageUnit;
     }
 
     /**
@@ -200,8 +191,6 @@ public final class LiveOutlineBuilder {
      * Every accepted point beyond the second commits one quad.
      */
     public void addPoint(float x, float y, float width) {
-        // v2.2.2: never render live ink thinner than the commit-time floor.
-        width = Math.max(width, minVisibleWidth);
         if (accepted == 0) {
             x0 = x;
             y0 = y;

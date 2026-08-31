@@ -251,6 +251,38 @@ public class StrokeSmootherTest {
     }
 
     /**
+     * v3.2.4 repro: a SHORT stroke written slowly at deep zoom collapses to
+     * the anchor. The fountain pen's stabilization 0.1 gives a 2.4 page-unit
+     * radius that is fully active at slow speed; the radius is a FIXED number
+     * of page units, so at 1000% zoom (0.1 fit) it spans ~30 screen px and any
+     * stroke shorter than that is held on the anchor and emits nothing —
+     * "整段识别不出". The radius must be divided by the zoom so it stays a
+     * constant number of screen pixels; a 1.92-unit stroke at 1000% must still
+     * be followed, not collapsed.
+     */
+    @Test
+    public void slowShortStroke_atDeepZoom_follows() {
+        StrokeSmoother s = new StrokeSmoother();
+        s.configure(preset(0f, 0.1f)); // fountain pen, isolate pull-string
+        s.setZoomScaleFactor(0.1f);    // 1000% zoom: radius 2.4 -> 0.24 units
+        s.reset();
+        long t0 = 1_000_000L;
+        long dtMs = 4;
+        float velocity = 30f; // very slow writing
+        s.process(0f, 0f, 0.5f, t0, null);
+        float minX = 0f, maxX = 0f;
+        for (int i = 1; i <= 16; i++) { // 64ms, stroke ~1.92 page units
+            float rawX = velocity * (i * dtMs) / 1000f;
+            float[] out = s.process(rawX, 0f, 0.5f, t0 + i * dtMs, null);
+            minX = Math.min(minX, out[0]);
+            maxX = Math.max(maxX, out[0]);
+        }
+        float span = maxX - minX;
+        assertTrue("deep-zoom short stroke collapsed: emitted span " + span
+                + " for a 1.92-unit stroke at 1000%", span > 0.2f);
+    }
+
+    /**
      * v2.2.2: retraction must not throw the stabilizer away for slow
      * writing, where it exists to damp hand jitter. At 120 u/s (< the full
      * radius speed) the anchor must still trail by most of its radius.

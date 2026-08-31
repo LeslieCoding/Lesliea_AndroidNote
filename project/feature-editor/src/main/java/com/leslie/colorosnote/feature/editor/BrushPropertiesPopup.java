@@ -55,7 +55,20 @@ public final class BrushPropertiesPopup {
         Context context = anchor.getContext();
         PopupBrushPropsBinding b = PopupBrushPropsBinding.inflate(LayoutInflater.from(context));
 
-        buildStyleRow(context, b, tool, preset, listener);
+        // v3.2.3: the fountain pen's slider floor is raised (see
+        // WidthSliderMapper). A stored sub-floor preset (e.g. 0.5pt from an
+        // older install) is bumped up here so the slider, the preset and the
+        // persisted value always agree.
+        float widthMin = WidthSliderMapper.minWidthFor(tool);
+        if (preset.baseWidth < widthMin) {
+            float factor = widthMin / Math.max(0.01f, preset.baseWidth);
+            preset.baseWidth = widthMin;
+            preset.minWidth *= factor;
+            preset.maxWidth *= factor;
+            notifyChange(listener, tool, preset, straighten);
+        }
+
+        buildStyleRow(context, b, tool, preset, widthMin, listener);
 
         buildPalette(context, b.paletteGrid, preset, selected -> {
             preset.color = selected;
@@ -75,17 +88,19 @@ public final class BrushPropertiesPopup {
             }
         });
 
-        // Width: 0.5..60pt in 0.5pt steps (WidthSliderMapper); min/max scaled
-        // proportionally so pressure-sensitive brushes keep their dynamic range.
-        b.seekWidth.setProgress(WidthSliderMapper.widthToProgress(preset.baseWidth));
-        b.textWidthValue.setText(WidthSliderMapper.label(preset.baseWidth));
+        // Width: min..60pt in 0.5pt steps (WidthSliderMapper; the fountain pen
+        // floor is raised per-tool); min/max scaled proportionally so
+        // pressure-sensitive brushes keep their dynamic range.
+        b.seekWidth.setMax(WidthSliderMapper.maxProgress(widthMin));
+        b.seekWidth.setProgress(WidthSliderMapper.widthToProgress(preset.baseWidth, widthMin));
+        b.textWidthValue.setText(WidthSliderMapper.label(preset.baseWidth, widthMin));
         b.seekWidth.setOnSeekBarChangeListener(new SimpleSeekBar() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (!fromUser) {
                     return;
                 }
-                float newBase = WidthSliderMapper.progressToWidth(progress);
+                float newBase = WidthSliderMapper.progressToWidth(progress, widthMin);
                 float factor = newBase / Math.max(0.01f, preset.baseWidth);
                 preset.baseWidth = newBase;
                 preset.minWidth *= factor;
@@ -99,7 +114,7 @@ public final class BrushPropertiesPopup {
                 // Re-apply the pressure spread on fixed-width brushes so an
                 // active pressure sensitivity survives width changes.
                 BrushParamMapping.applyFixedWidthSpread(preset);
-                b.textWidthValue.setText(WidthSliderMapper.label(newBase));
+                b.textWidthValue.setText(WidthSliderMapper.label(newBase, widthMin));
                 notifyChange(listener, tool, preset, b.switchStraighten.isChecked());
             }
         });
@@ -185,9 +200,10 @@ public final class BrushPropertiesPopup {
     }
 
     /** Re-syncs all numeric rows after a style variant rewrote the preset. */
-    private static void refreshNumericRows(PopupBrushPropsBinding b, BrushPreset preset) {
-        b.seekWidth.setProgress(WidthSliderMapper.widthToProgress(preset.baseWidth));
-        b.textWidthValue.setText(WidthSliderMapper.label(preset.baseWidth));
+    private static void refreshNumericRows(PopupBrushPropsBinding b, BrushPreset preset,
+                                           float widthMin) {
+        b.seekWidth.setProgress(WidthSliderMapper.widthToProgress(preset.baseWidth, widthMin));
+        b.textWidthValue.setText(WidthSliderMapper.label(preset.baseWidth, widthMin));
         b.seekOpacity.setProgress(clamp(Math.round(preset.opacity * 100f) - 10,
                 0, b.seekOpacity.getMax()));
         b.seekPressure.setProgress(PercentSliderMapper.valueToProgress(
@@ -214,7 +230,7 @@ public final class BrushPropertiesPopup {
      */
     private static void buildStyleRow(Context context, PopupBrushPropsBinding b,
                                       EditorTool tool, BrushPreset preset,
-                                      Listener listener) {
+                                      float widthMin, Listener listener) {
         java.util.List<PenStyleVariants.Variant> variants = PenStyleVariants.forTool(tool);
         if (variants.isEmpty()) {
             return; // label + scroll stay GONE
@@ -256,7 +272,7 @@ public final class BrushPropertiesPopup {
             name.setTextColor(selected ? 0xFF2F6BFF : 0xFF17181A);
             card.setOnClickListener(v -> {
                 variant.applyTo(preset); // preserves preset.color
-                refreshNumericRows(b, preset);
+                refreshNumericRows(b, preset, widthMin);
                 refreshStyleSelection(context, b.styleRow, variant.id);
                 notifyChange(listener, tool, preset, b.switchStraighten.isChecked());
             });

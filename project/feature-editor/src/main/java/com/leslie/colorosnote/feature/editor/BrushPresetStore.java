@@ -103,7 +103,25 @@ public final class BrushPresetStore {
         } catch (JSONException e) {
             AppLogger.w(TAG, "corrupt preset json for " + tool + ", using defaults");
         }
-        return preset;
+        return clampFountainPenFloor(tool, preset);
+    }
+
+    /**
+     * v3.2.3: the fountain pen's width slider floor is raised (its responsive
+     * nib collapses below baseWidth, and sub-device-pixel ink reads as
+     * missing). A stored preset below the floor is scaled up on load so the
+     * fountain pen always writes at a visible width — no popup visit needed.
+     */
+    private static BrushPreset clampFountainPenFloor(EditorTool tool, BrushPreset p) {
+        float min = WidthSliderMapper.minWidthFor(tool);
+        if (p.baseWidth >= min) {
+            return p;
+        }
+        float factor = min / Math.max(0.01f, p.baseWidth);
+        p.baseWidth = min;
+        p.minWidth *= factor;
+        p.maxWidth *= factor;
+        return p;
     }
 
     public void savePreset(EditorTool tool, BrushPreset p, boolean straighten) {

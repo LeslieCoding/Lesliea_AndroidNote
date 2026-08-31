@@ -67,9 +67,8 @@ public final class BrushEngine {
     private static final float TAPER_MIN_FACTOR = 0.05f;
     /** Each taper ramp may cover at most this fraction of the stroke length. */
     private static final float MAX_TAPER_FRACTION = 0.35f;
-    /** Ink is never rendered thinner than this many device pixels. Package
-     *  visible so {@link LiveOutlineBuilder} applies the same floor live. */
-    static final float MIN_VISIBLE_WIDTH_PX = 1.0f;
+    /** Ink is never rendered thinner than this many device pixels. */
+    private static final float MIN_VISIBLE_WIDTH_PX = 1.0f;
     /** Absolute weld floor for centerline points (avoids zero normals). */
     private static final float WELD_DISTANCE = 0.05f;
     /** Center weld distance also scales with local width (outline dedup). */
@@ -108,6 +107,22 @@ public final class BrushEngine {
      * and pencil have taperStart = 0 and were unaffected). */
     private float liveDistanceFromStart;
 
+    /**
+     * Live visible-width floor in page units (v3.2.2). The committed mesh
+     * raises pressure-collapsed widths below one device pixel so they are
+     * visible; the live stroke must apply the SAME floor, and it must be
+     * applied BEFORE the tapers so the fountain-pen tip still tapers to
+     * nothing (a 0.5pt tip is normally invisible — the pen body must not
+     * be). Set by the renderer from the current viewport scale; 0 = no
+     * floor (default, keeps old behavior for non-UI callers).
+     */
+    private float minVisibleWidthPage;
+
+    /** Sets the live visibility floor in page units (0 = none). */
+    public void setMinVisibleWidthPage(float pageUnits) {
+        minVisibleWidthPage = pageUnits;
+    }
+
     // ------------------------------------------------------------------
     // Streaming API (live stroke)
     // ------------------------------------------------------------------
@@ -134,6 +149,10 @@ public final class BrushEngine {
             out = new float[4];
         }
         float width = computeWidth(points.size() - 1, p, preset, points);
+        // v3.2.2: pressure/velocity collapse must not drop below the visible
+        // floor (1 device px at the current zoom) — BEFORE the tapers, so the
+        // fountain-pen tip still fades out instead of being flattened.
+        width = Math.max(width, minVisibleWidthPage);
         float opacity = computeOpacity(points.size() - 1, p, preset, points);
         // Live start taper: running arc length from stroke start (O(1) per
         // sample; the old per-sample re-walk was O(n²), see the field doc).
@@ -233,20 +252,27 @@ public final class BrushEngine {
         // the thinnest pen appeared to drop connecting strokes entirely while a
         // slightly thicker one was fine. Never let ink render thinner than it
         // can be seen.
-        float minVisibleWidth = pixelsPerPageUnit > 0f
+        // Only the renderer's real device scale (fit zoom and deeper, always
+        // > 1 on this app's tablet) applies the 1-device-pixel visibility
+        // floor. The default scale of 1 (unit tests, callers without a
+        // viewport) keeps the pure width model untouched.
+        float minVisibleWidth = pixelsPerPageUnit > 1f
                 ? MIN_VISIBLE_WIDTH_PX / pixelsPerPageUnit : 0f;
         for (int i = 0; i < n; i++) {
+            // v3.2.2: raise pressure/velocity-collapsed widths to at least the
+            // visible floor BEFORE the tapers, so a 0.5pt body is readable at
+            // fit zoom (it was ~0.95px, anti-aliased to nothing) while the
+            // tip still tapers to a real fade-out. The old post-taper clamp
+            // used min(floor, baseWidth), which never lifted sub-floor bodies
+            // and flattened the taper.
+            if (widths[i] < minVisibleWidth) {
+                widths[i] = minVisibleWidth;
+            }
             if (startLen > 0f) {
                 widths[i] *= taperFactorStart(distFromStart[i], startLen);
             }
             if (endLen > 0f) {
                 widths[i] *= taperFactorEnd(totalLength - distFromStart[i], endLen);
-            }
-            // Only ever raises a width that would be invisible; a stroke the
-            // user set thinner than one pixel still renders at its own width
-            // when that is already above the floor.
-            if (widths[i] < minVisibleWidth) {
-                widths[i] = Math.min(minVisibleWidth, preset.baseWidth);
             }
         }
         return buildMesh(center, widths, opacities, preset.color, n,

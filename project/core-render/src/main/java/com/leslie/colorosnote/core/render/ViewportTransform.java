@@ -41,6 +41,36 @@ public final class ViewportTransform {
         updateInverse();
     }
 
+    /**
+     * Maps an arbitrary page-space rectangle onto the whole view, left/top
+     * aligned and using a single uniform scale (the smaller of the two axes'
+     * ratios, so nothing in the requested rect is cropped).
+     *
+     * <p>Used by the zoom-writing window, which shows one magnified band of
+     * the page in a separate view. {@code fitScale} is still set to the scale
+     * at which the *entire* page would fit this view, so quality budgets that
+     * are expressed as zoom levels (see {@code LiveInkQualityPolicy}) keep
+     * their normal meaning here.
+     *
+     * @param pageWidth  full page width, for the fit-scale reference
+     * @param pageHeight full page height, for the fit-scale reference
+     */
+    public void showPageRect(float rectLeft, float rectTop,
+                             float rectWidth, float rectHeight,
+                             float pageWidth, float pageHeight,
+                             float viewWidth, float viewHeight) {
+        float w = Math.max(1e-3f, rectWidth);
+        float h = Math.max(1e-3f, rectHeight);
+        float scale = Math.min(viewWidth / w, viewHeight / h);
+        pageToScreen.reset();
+        pageToScreen.setScale(scale, scale);
+        pageToScreen.postTranslate(-rectLeft * scale, -rectTop * scale);
+        fitScale = Math.min(viewWidth / Math.max(1e-3f, pageWidth),
+                viewHeight / Math.max(1e-3f, pageHeight));
+        userTransformed = true;
+        updateInverse();
+    }
+
     /** Pans by screen-space deltas. */
     public void panBy(float dxScreen, float dyScreen) {
         pageToScreen.postTranslate(dxScreen, dyScreen);
@@ -72,6 +102,17 @@ public final class ViewportTransform {
         float[] v = new float[9];
         pageToScreen.getValues(v);
         return v[Matrix.MSCALE_X];
+    }
+
+    /**
+     * Scale at which the page exactly fits the viewport — the "100%" the zoom
+     * indicator and {@link #MAX_ZOOM_FACTOR} are measured against. It depends
+     * on the screen and the page size, so quality budgets that are meant to be
+     * "per zoom level" must divide by this rather than compare against an
+     * absolute scale.
+     */
+    public float getFitScale() {
+        return fitScale;
     }
 
     /** Matrix mapping page coordinates to screen coordinates. */

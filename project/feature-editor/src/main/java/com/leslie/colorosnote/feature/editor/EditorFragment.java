@@ -1070,10 +1070,15 @@ public final class EditorFragment extends Fragment
             return;
         }
         binding.inkView.setBrush(preset);
+        // Highlighter "straighten" (拉直) flag, kept per-tool.
+        boolean straighten = presetStore.straightenFor(currentTool);
+        binding.inkView.setStraightenEnabled(straighten);
         if (continuousAdapter != null) {
             continuousAdapter.setBrush(preset);
+            continuousAdapter.setStraightenEnabled(straighten);
         }
     }
+
 
     /** Finger/stylus policy from settings (spec 29 防误触). */
     private void applyInputPolicy() {
@@ -1306,6 +1311,7 @@ public final class EditorFragment extends Fragment
         onContentEdited();
         maybeShowPressureHint();
     }
+
 
     private void maybeShowPressureHint() {
         if (binding == null || !settings.showSimulatedPressureHint) {
@@ -1681,6 +1687,8 @@ public final class EditorFragment extends Fragment
         onContentEdited();
     }
 
+
+
     @Override
     public void onViewportChanged() {
         if (binding != null) {
@@ -1778,7 +1786,10 @@ public final class EditorFragment extends Fragment
     private BroadcastReceiver debugZoomReceiver;
 
     private void registerDebugZoomHook() {
-        // TODO(TEMP-TEST): 临时放开 debug 限制以便在 release 上验证缩放；交付前还原为 debuggable 判断。
+        if ((requireContext().getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) == 0) {
+            // Release builds must not expose a receiver that can drive the viewport.
+            return;
+        }
         debugZoomReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -2308,6 +2319,8 @@ public final class EditorFragment extends Fragment
             BrushPreset preset = presets.get(currentTool);
             if (preset != null) {
                 continuousAdapter.setBrush(preset);
+                continuousAdapter.setStraightenEnabled(
+                        presetStore.straightenFor(currentTool));
             }
             binding.continuousList.setAdapter(continuousAdapter);
             if (!continuousScrollListenerAdded) {

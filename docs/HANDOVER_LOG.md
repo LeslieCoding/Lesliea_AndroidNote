@@ -2,7 +2,34 @@
 
 > 按 AGENTS.md 要求：每阶段记录改了什么、解决了什么、发现什么、接下来要改什么。最新在上。
 
-## 2026-09-01 v3.2.1（versionCode 68）— 细线钢笔快写连笔跟手性三轮迭代
+## 2026-09-01 v3.2.7（versionCode 74）— 1000% 写完平移笔迹变化：视窗从"字节压缩变软"改为"全设备分辨率"
+
+> 背景：用户反馈「1000% 写笔记后缩放/平移，笔迹变化（消失/增加）」，明确是"写完了，然后挪到左边/右边/上/下，笔迹会改变"。上一轮（v3.2.6 未发版，只改了 margin 0.15→0.30、window 防抖 300→80ms、commit 加视口稳定检查）方向对但不够。
+
+### 根因（本轮新定位：视窗字节上限把分辨率压软了）
+- OPPO Pad 视口 1600x2560，1000% = 绝对 scale 12.5。0.30 margin 的视窗 = 2560x4096px = **42MB > 32MB MAX_WINDOW_BYTES**，于是旧 `computeWindow` 把像素 scale 压到 ~0.87x。
+- 后果正是用户看到的"写完平移笔迹变化"：
+  1. 收笔 blit 把 12.5x 的实时墨 **降采样**进 ~10.9x 的视窗位图 → 笔一抬就变软；
+  2. 每次平移触发的重渲都在 ~10.9x → 落定的墨比实时墨软 13%；
+  3. 平移超出 margin 露出的底图是 4.57x 封顶放大 2.7x → 细笔迹局部"消失"，视窗追上再"增加"。
+- 上一轮 v3.2.6 的 margin 0.30 / 80ms 防抖 / viewportStable 检查保留（方向正确）。
+
+### 修复
+1. **RenderScalePolicy**：`MAX_WINDOW_BYTES` 32MB → 64MB；`WINDOW_MARGIN` 0.30 → 0.40；`computeWindow` 改为**分辨率优先**——字节超限先缩 margin（保持设备分辨率），只有"裸可见区都超限"（超大屏）才降像素 scale。OPPO Pad 1000% 下视窗 = 1600x2560×1.8 = 53MB 全分辨率，墨与实时笔迹一致。
+2. **InkView**：新增 `WINDOW_PAN_REBAKE_DEBOUNCE_MS`=16ms；`scheduleWindowIfNeeded` 按 `windowScaleDrifted()` 区分：纯平移用 16ms（几乎跟手，0.40 margin 吸收单帧平移量，软底图不外露），缩放手势仍用 80ms（捏合不逐帧重渲）。
+3. 版本 3.2.5/72 → 3.2.7/74。
+
+### 回归锁
+- 新增 `oppoPadDeepZoomKeepsFullDeviceResolution`：1000%（12.5x）下视窗 scale 必须 == viewportScale（全分辨率），且 0.40 margin 像素数符合预期、不超字节上限。
+- 更新 `computeWindowExpandsAndRendersAtViewportResolution`（0.40 margin 新坐标）与 `windowCoversSmallPanButNotLarge`（0.40 margin 后大平移阈值 30→60）。
+- core-render / core-ink 全量单测通过；assembleRelease 成功；已装到 OPPO Pad（2d64f765）并启动正常（MainActivity 前台，无崩溃）。
+
+### 待用户真机验收
+- 1000% 书写 → 抬起 → 平移（四方向），已写笔迹不应再变化/变软/消失；快速甩屏时仍有极短暂软边是 margin+渲染时延的固有取舍。
+
+### 已知可继续优化（未做）
+- 平移触发重渲时每次新建+回收 ~53MB 视窗位图，连续甩屏有 GC/掉帧风险；如需可加视窗位图双缓冲复用（有换帧撕裂的时序陷阱，需谨慎）。
+
 
 > 背景：用户报告「钢笔 0.5 细线 + 快写连笔时识别不到/延迟，线宽调高就好；圆珠笔/铅笔没问题」，并怀疑与笔刷样式有关。架构审计确认了钢笔与圆珠笔/铅笔的三处差异正是根因链，与 iPad 笔记 app 的稳定器策略（书写辅助随速度减弱）对齐后修复。
 

@@ -51,6 +51,7 @@ public final class PageContinuousAdapter
     private final Listener listener;
     private final Map<String, InkView> activeViews = new HashMap<>();
     private BrushPreset brush = BrushPreset.fountainPen();
+    private boolean straightenEnabled;
     private PageBackgroundProvider backgroundProvider;
     private EraseCallback eraseCallback;
 
@@ -78,6 +79,14 @@ public final class PageContinuousAdapter
         brush = preset;
         for (InkView v : activeViews.values()) {
             v.setBrush(preset);
+        }
+    }
+
+    /** Highlighter straighten flag, forwarded to every page InkView. */
+    public void setStraightenEnabled(boolean enabled) {
+        straightenEnabled = enabled;
+        for (InkView v : activeViews.values()) {
+            v.setStraightenEnabled(enabled);
         }
     }
 
@@ -134,6 +143,7 @@ public final class PageContinuousAdapter
         // Fingers scroll the list: stylus-only writing in continuous mode.
         inkView.setPalmRejectionPolicy(PalmRejectionPolicy.STYLUS_ONLY);
         inkView.setBrush(brush);
+        inkView.setStraightenEnabled(straightenEnabled);
         inkView.getRenderer().setPageBackgroundProvider(backgroundProvider);
         inkView.setStrokeListener(stroke -> listener.onStrokeFinished(page, stroke));
         inkView.setOnTouchListener(new LongPressEraseTouchListener(page));

@@ -92,6 +92,15 @@ public final class StrokeBuilder {
         this.preset = brush;
     }
 
+    /**
+     * Scales the pull-string stabilizer radius by 1/zoom so a deep-zoom short
+     * stroke is not held on the anchor and dropped (v3.2.4). Called by the
+     * host on stroke start from the current viewport.
+     */
+    public void setStabilizerZoomFactor(float factor) {
+        smoother.setZoomScaleFactor(factor);
+    }
+
     public BrushPreset getBrush() {
         return preset;
     }

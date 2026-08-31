@@ -38,6 +38,12 @@ public final class EditorOverlayView extends View {
     private float eraserY;
     private float eraserRadiusPx;
 
+    /** Source region currently shown by the zoom-writing window (screen px). */
+    private final Paint zoomRegionPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint zoomRegionFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final RectF zoomRegionRect = new RectF();
+    private boolean zoomRegionVisible;
+
     private static final long FLASH_DURATION_MS = 1400L;
     private final Paint flashFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint flashStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -95,6 +101,29 @@ public final class EditorOverlayView extends View {
         flashStrokePaint.setStyle(Paint.Style.STROKE);
         flashStrokePaint.setStrokeWidth(3f);
         flashStrokePaint.setColor(0xFF2F6BFF);
+
+        zoomRegionPaint.setStyle(Paint.Style.STROKE);
+        zoomRegionPaint.setStrokeWidth(3f);
+        zoomRegionPaint.setColor(0xFF2F6BFF);
+        zoomRegionFillPaint.setStyle(Paint.Style.FILL);
+        zoomRegionFillPaint.setColor(0x142F6BFF);
+    }
+
+    /**
+     * Shows the page region the zoom-writing window is currently magnifying,
+     * so the user can see where what they write will land.
+     */
+    public void setZoomRegion(RectF screenRect) {
+        zoomRegionRect.set(screenRect);
+        zoomRegionVisible = true;
+        invalidate();
+    }
+
+    public void clearZoomRegion() {
+        if (zoomRegionVisible) {
+            zoomRegionVisible = false;
+            invalidate();
+        }
     }
 
     // ------------------------------------------------------------------
@@ -186,6 +215,10 @@ public final class EditorOverlayView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (zoomRegionVisible) {
+            canvas.drawRoundRect(zoomRegionRect, 6f, 6f, zoomRegionFillPaint);
+            canvas.drawRoundRect(zoomRegionRect, 6f, 6f, zoomRegionPaint);
+        }
         if (lassoVisible) {
             canvas.drawPath(lassoPath, lassoPaint);
         }

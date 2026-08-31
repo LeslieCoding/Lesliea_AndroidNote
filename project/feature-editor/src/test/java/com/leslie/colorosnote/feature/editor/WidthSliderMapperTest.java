@@ -60,4 +60,29 @@ public class WidthSliderMapperTest {
         assertTrue(WidthSliderMapper.MIN_WIDTH <= 0.5f);
         assertTrue(WidthSliderMapper.MAX_WIDTH > 40f);
     }
+
+    @Test
+    public void fountainPenFloorIsHigherThanOtherPens() {
+        assertTrue(WidthSliderMapper.FOUNTAIN_PEN_MIN_WIDTH > WidthSliderMapper.MIN_WIDTH);
+        assertEquals(WidthSliderMapper.FOUNTAIN_PEN_MIN_WIDTH,
+                WidthSliderMapper.minWidthFor(EditorTool.FOUNTAIN_PEN), 1e-6f);
+        assertEquals(WidthSliderMapper.MIN_WIDTH,
+                WidthSliderMapper.minWidthFor(EditorTool.BALLPOINT), 1e-6f);
+        assertEquals(WidthSliderMapper.MIN_WIDTH,
+                WidthSliderMapper.minWidthFor(EditorTool.PENCIL), 1e-6f);
+        assertEquals(WidthSliderMapper.MIN_WIDTH,
+                WidthSliderMapper.minWidthFor(EditorTool.HIGHLIGHTER), 1e-6f);
+    }
+
+    @Test
+    public void fountainPenSliderStartsAtItsFloor() {
+        float min = WidthSliderMapper.FOUNTAIN_PEN_MIN_WIDTH;
+        assertEquals(min, WidthSliderMapper.progressToWidth(0, min), 1e-6f);
+        assertEquals(min, WidthSliderMapper.progressToWidth(-3, min), 1e-6f);
+        assertEquals(60f, WidthSliderMapper.progressToWidth(
+                WidthSliderMapper.maxProgress(min), min), 1e-6f);
+        assertEquals(0, WidthSliderMapper.widthToProgress(min - 1f, min));
+        // A stored 0.5pt fountain preset restores to the raised floor.
+        assertEquals(0, WidthSliderMapper.widthToProgress(0.5f, min));
+    }
 }

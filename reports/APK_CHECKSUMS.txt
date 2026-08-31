@@ -1,13 +1,18 @@
 # Leslie ColorOSNote APK 校验信息
 
-生成时间：2026-08-27 19:15:11 +0800
+生成时间：2026-09-01 00:05 +0800（v3.2.0 / versionCode 67）
 
 ## SHA-256
 
 ```
-fd2ed90c21639cbae98777ed2e373fb52a2d037144dd18d7e711bb55da6cd500 *LeslieColorOSNote-debug.apk
-3d1f756165429418c8ced8ea4a5a40bc9218d794598c529920a5d6233070ab82 *LeslieColorOSNote-release.apk
+1077d93fdd299d7acfc799d5eaf764bec96103c0efa04bb6bae42e185b75f947 *LeslieColorOSNote-v3.2.0-release.apk
+1077d93fdd299d7acfc799d5eaf764bec96103c0efa04bb6bae42e185b75f947 *LeslieColorOSNote-release.apk
 ```
+
+release 包大小 71 MiB（v2.2.1 为 134 MiB；release 变体已裁掉 x86/x86_64/mips/mips64/armeabi
+五套用不到的原生库，只保留 arm64-v8a 与 armeabi-v7a）。R8 代码压缩与资源裁剪已还原开启。
+
+`LeslieColorOSNote-debug.apk` 仍是 2026-08-27 的旧包（v2.0.1 时期），本轮未重出 debug 包。
 
 ## release 签名证书（apksigner verify --print-certs）
 

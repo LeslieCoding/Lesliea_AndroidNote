@@ -445,8 +445,43 @@ public final class PageRenderer {
         List<Stroke> sorted = new ArrayList<>(strokes);
         Collections.sort(sorted, Comparator.comparingInt(s -> s.zIndex));
         for (Stroke stroke : sorted) {
+            if (isBelowVisibleDetail(canvas, stroke)) {
+                continue;
+            }
             drawStroke(canvas, stroke);
         }
+    }
+
+    /**
+     * Below this projected size a stroke cannot render as more than a faint
+     * dot. Deliberately under one device pixel: this is a performance filter,
+     * never a visible change.
+     */
+    private static final float MIN_VISIBLE_STROKE_PX = 0.75f;
+    private final float[] lodMatrixValues = new float[9];
+
+    /**
+     * Level-of-detail culling (v3.0.0) — the technique ZoomNotes documents as
+     * "View Filtering": skip strokes whose projection is too small to show
+     * anything.
+     *
+     * <p>On a dense page viewed zoomed out (a full lecture of notes, or an
+     * imported PDF with hundreds of annotations) most strokes land on a handful
+     * of pixels each, and meshing them costs far more than the grey speck they
+     * contribute.
+     */
+    private boolean isBelowVisibleDetail(Canvas canvas, Stroke stroke) {
+        if (stroke == null || stroke.points == null || stroke.points.isEmpty()) {
+            return true;
+        }
+        canvas.getMatrix().getValues(lodMatrixValues);
+        float scale = lodMatrixValues[Matrix.MSCALE_X];
+        if (!(scale > 0f) || !Float.isFinite(scale)) {
+            return false; // unknown transform: never cull
+        }
+        float[] b = stroke.computeBounds();
+        float diagonalPx = (float) Math.hypot(b[2] - b[0], b[3] - b[1]) * scale;
+        return diagonalPx < MIN_VISIBLE_STROKE_PX;
     }
 
     /** Meshes and draws a single stroke as a filled variable-width polygon. */

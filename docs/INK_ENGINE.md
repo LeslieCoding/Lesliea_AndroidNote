@@ -3,7 +3,7 @@
 > 全项目最高优先级模块（spec 5/6/7）。core-ink（几何内核，纯 JVM 可测）+ core-render（Android 绘制壳）。
 
 ## 采样管线
-`StrokeBuilder`：MotionEvent → StrokePoint 全字段（x/y/t/pressure/tilt/orientation/toolType/pointerId/velocity）；historical 批量事件全取；stylus 优先（TOOL_TYPE_STYLUS），手指按 PalmRejectionPolicy（STYLUS_ONLY / FINGER_AND_STYLUS）；笔落下时掌触拒绝、笔中途可接管。`MotionPredictor` 对 androidx input-motionprediction 做反射隔离包装，库缺失自动 NoOp 降级——预测点只用于显示、不提交进笔迹。
+`StrokeBuilder`：MotionEvent → StrokePoint 全字段（x/y/t/pressure/tilt/orientation/toolType/pointerId/velocity）；historical 批量事件全取；stylus 优先（TOOL_TYPE_STYLUS），手指按 PalmRejectionPolicy（STYLUS_ONLY / FINGER_AND_STYLUS）；笔落下时掌触拒绝、笔中途可接管。`MotionPredictor` 对 androidx input-motionprediction 做反射隔离包装（类名 `androidx.input.motionprediction.MotionEventPredictor`，由 `MotionPredictorClassNameTest` 对着真实 artifact 钉死——写错会静默降级成 NoOp，v2.3.0 前一直如此），库缺失自动 NoOp 降级——预测点只用于显示、不提交进笔迹。R8 必须 keep 该包，否则只被反射触达的它会被整包剪掉。
 
 ## 压感
 `PressureSource`：前 12 个 stylus 样本方差判定 REAL/SIMULATED/UNAVAILABLE；SIMULATED 用速度映射（快=细）且 UI 显示「模拟压感」（不伪装真实压感，spec 5.2）。
