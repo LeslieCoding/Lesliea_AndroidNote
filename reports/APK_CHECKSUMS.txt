@@ -1,0 +1,21 @@
+# Leslie ColorOSNote APK 校验信息
+
+生成时间：2026-08-27 19:15:11 +0800
+
+## SHA-256
+
+```
+fd2ed90c21639cbae98777ed2e373fb52a2d037144dd18d7e711bb55da6cd500 *LeslieColorOSNote-debug.apk
+3d1f756165429418c8ced8ea4a5a40bc9218d794598c529920a5d6233070ab82 *LeslieColorOSNote-release.apk
+```
+
+## release 签名证书（apksigner verify --print-certs）
+
+```
+Signer #1 certificate DN: CN=Leslie ColorOSNote, OU=Personal, O=Leslie, C=CN
+Signer #1 certificate SHA-256 digest: af608b4358be7a1a74eeed3633f5e5ea50da4f3d3b7f4149105210765cc4287c
+Signer #1 certificate SHA-1 digest: 6dcac6c5dc337b77a2f6ebd3c7d3f153df305f29
+Signer #1 certificate MD5 digest: 87e4754b104d72ec2b851a732b6070ac
+```
+
+keystore：keystore/leslie-release.keystore（alias: leslie）

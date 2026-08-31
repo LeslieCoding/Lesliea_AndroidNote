@@ -52,6 +52,13 @@ project/
     ├── pdf/ office/ caj/ # 文档解析
 ```
 
+## 版本历史与开发记录
+
+- [CHANGELOG.md](CHANGELOG.md) — 每个版本改了什么（v1.x → v2.2.1）
+- [docs/HANDOVER_LOG.md](docs/HANDOVER_LOG.md) — 完整开发交接日志：每轮迭代的现象、根因、改动、回归测试与真机验证
+- [reports/](reports/) — 性能报告、测试报告、真机验收与缩放渲染研究
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/INK_ENGINE.md](docs/INK_ENGINE.md) · [docs/PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md) 等架构与需求文档
+
 ## 构建
 
 ```bash
