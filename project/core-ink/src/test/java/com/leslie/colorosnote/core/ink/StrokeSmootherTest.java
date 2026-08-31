@@ -221,4 +221,58 @@ public class StrokeSmootherTest {
             t += 4L;
         }
     }
+
+    /**
+     * v2.2.2: the pull-string stabilizer is a CONSTANT SPATIAL lag (exactly
+     * its radius) — at the fountain pen's stabilization 0.1 that is 2.4 page
+     * units, ~70 screen px at 1000% zoom, which read as "fast cursive can't
+     * keep up". The radius must retract to zero on fast strokes: steady-state
+     * lag at 900 u/s collapses to the 1€ filter lag alone (< 3 units; the old
+     * fixed-radius behavior trailed 2.4 + ~2.5 ≈ 5).
+     */
+    @Test
+    public void fastCursive_stabilizerRetracts() {
+        StrokeSmoother s = new StrokeSmoother();
+        s.configure(preset(0.2f, 0.1f)); // fountain pen: radius 2.4 units
+        s.reset();
+        long t0 = 1_000_000L;
+        long dtMs = 4;
+        float velocity = 900f; // fast cursive
+        s.process(0f, 0f, 0.5f, t0, null);
+        float[] out = null;
+        float rawX = 0f;
+        for (int i = 1; i <= 480; i++) {
+            rawX = velocity * (i * dtMs) / 1000f;
+            out = s.process(rawX, 0f, 0.5f, t0 + i * dtMs, null);
+        }
+        float lag = rawX - out[0];
+        assertTrue("fast-cursive lag " + lag + " must be < 3 units "
+                + "(retracted stabilizer + filter only)", lag > 0f && lag < 3f);
+    }
+
+    /**
+     * v2.2.2: retraction must not throw the stabilizer away for slow
+     * writing, where it exists to damp hand jitter. At 120 u/s (< the full
+     * radius speed) the anchor must still trail by most of its radius.
+     */
+    @Test
+    public void slowWriting_stabilizerStillDamps() {
+        StrokeSmoother s = new StrokeSmoother();
+        s.configure(preset(0f, 0.1f)); // no filter: isolate the pull-string
+        s.reset();
+        long t0 = 1_000_000L;
+        long dtMs = 4;
+        float velocity = 120f;
+        s.process(0f, 0f, 0.5f, t0, null);
+        float[] out = null;
+        float rawX = 0f;
+        for (int i = 1; i <= 480; i++) {
+            rawX = velocity * (i * dtMs) / 1000f;
+            out = s.process(rawX, 0f, 0.5f, t0 + i * dtMs, null);
+        }
+        float lag = rawX - out[0];
+        assertTrue("slow-writing stabilizer lag " + lag
+                        + " must stay >= 2 units (still damping)",
+                lag >= 2f && lag <= 2.5f);
+    }
 }

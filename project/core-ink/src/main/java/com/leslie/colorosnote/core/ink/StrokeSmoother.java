@@ -35,6 +35,23 @@ public final class StrokeSmoother {
     private static final float MAX_STABILIZER_RADIUS = 24f;
 
     /**
+     * v2.2.2 speed-adaptive stabilizer. A pull-string anchor trails the pen
+     * by exactly its radius once the pen keeps moving — a CONSTANT SPATIAL
+     * lag. At stabilization == 0.1 (fountain pen default) that is 2.4 page
+     * units: invisible at fit zoom, but ~70 screen px at 1000% zoom, which
+     * read as "the fountain pen can't keep up with fast cursive" (ballpoint
+     * and pencil have stabilization == 0 and were fine). Fast writing is
+     * exactly when stabilization matters least — hand jitter is dominated by
+     * intentional motion — so the effective radius ramps from FULL at slow
+     * speed to ZERO once the pen moves fast. Same strategy as the iPad note
+     * apps' "writing assist follows speed" stabilizers.
+     */
+    private static final float STAB_FULL_SPEED = 150f;
+    private static final float STAB_RETRACT_SPEED = 900f;
+    /** EMA factor for the raw-speed estimate that drives the retract ramp. */
+    private static final float STAB_SPEED_EMA = 0.35f;
+
+    /**
      * Derivative low-pass cutoff. v2.0.0: 1Hz -> 2Hz — numeric simulation
      * (240Hz stream, sigma=0.5u jitter on 1.2Hz handwriting + 2500u/s ramp)
      * showed dc=2.0 with beta=0.07 cuts jitter RMS 1.69->1.46 (-13.7%) AND
@@ -100,6 +117,12 @@ public final class StrokeSmoother {
     private float anchorX;
     private float anchorY;
 
+    /** Raw-speed estimate (page units/s) driving the stabilizer retract. */
+    private float rawSpeed;
+    private float lastRawX;
+    private float lastRawY;
+    private long lastRawTs = -1L;
+
     /** Reads smoothing/stabilization parameters from the preset. */
     public void configure(BrushPreset preset) {
         float s = clamp01(preset.smoothing);
@@ -115,6 +138,10 @@ public final class StrokeSmoother {
         outPressure = 0f;
         filterPosition.reset();
         filterPressure.reset();
+        rawSpeed = 0f;
+        lastRawX = 0f;
+        lastRawY = 0f;
+        lastRawTs = -1L;
     }
 
     /**
@@ -143,6 +170,9 @@ public final class StrokeSmoother {
             anchorY = y;
             filterPosition.seed(x, y, timestampMs);
             filterPressure.seed(pressure, timestampMs);
+            lastRawX = x;
+            lastRawY = y;
+            lastRawTs = timestampMs;
             hasOutput = true;
         } else {
             float sx;
@@ -157,16 +187,34 @@ public final class StrokeSmoother {
             }
             // Pull-string stabilization on top of the filtered output.
             if (stabilizerRadius > 0f) {
-                float dx = sx - anchorX;
-                float dy = sy - anchorY;
-                float dist = (float) Math.hypot(dx, dy);
-                if (dist > stabilizerRadius) {
-                    float k = (dist - stabilizerRadius) / dist;
-                    anchorX += dx * k;
-                    anchorY += dy * k;
+                // v2.2.2: retract the radius as raw pen speed rises so fast
+                // cursive keeps zero spatial lag (see STAB_FULL_SPEED doc).
+                float dxRaw = x - lastRawX;
+                float dyRaw = y - lastRawY;
+                if (timestampMs > lastRawTs && (dxRaw != 0f || dyRaw != 0f)) {
+                    float dt = (timestampMs - lastRawTs) / 1000f;
+                    float inst = (float) Math.hypot(dxRaw, dyRaw) / dt;
+                    rawSpeed += (inst - rawSpeed) * STAB_SPEED_EMA;
                 }
-                sx = anchorX;
-                sy = anchorY;
+                lastRawX = x;
+                lastRawY = y;
+                lastRawTs = timestampMs;
+                float ramp = (STAB_RETRACT_SPEED - rawSpeed)
+                        / (STAB_RETRACT_SPEED - STAB_FULL_SPEED);
+                float radius = stabilizerRadius * clamp01(ramp);
+                if (radius > 0f) {
+                    float dx = sx - anchorX;
+                    float dy = sy - anchorY;
+                    float dist = (float) Math.hypot(dx, dy);
+                    if (dist > radius) {
+                        float k = (dist - radius) / dist;
+                        anchorX += dx * k;
+                        anchorY += dy * k;
+                    }
+                    sx = anchorX;
+                    sy = anchorY;
+                }
+                // radius == 0: pass the filtered point straight through.
             }
             outX = sx;
             outY = sy;

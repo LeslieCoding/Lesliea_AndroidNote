@@ -39,6 +39,22 @@ public final class LiveOutlineBuilder {
     private static final float WELD_DISTANCE = 0.05f;
     /** Center weld distance also scales with local width (outline dedup). */
     private static final float WELD_WIDTH_FACTOR = 0.5f;
+    /**
+     * v2.4.0 upper bound on the weld distance, in final device pixels.
+     *
+     * <p>The width-proportional weld above is expressed in page units, but
+     * everything it costs is perceived in screen pixels, so its damage scales
+     * with the zoom. The newest kept point trails the pen by up to one weld
+     * distance: under a pixel at fit zoom, but ~7.5 device pixels at the 1000%
+     * cap, which reads as the ink failing to keep up with the hand. Capping
+     * the weld in pixels keeps that lag ~2 px at any zoom.
+     *
+     * <p>This is close to free: accepting more knots at deep zoom means each
+     * segment bends less, so {@link SplineRefiner#subdivisions} drops toward 1
+     * and the total quad count stays in the same range — the vertices simply
+     * move from subdivision to sampling, where they track the real input.
+     */
+    private static final float MAX_WELD_PX = 1.5f;
     /** Direction vectors shorter than this yield a zero normal. */
     private static final float MIN_DIRECTION_LEN = 1e-6f;
 
@@ -78,6 +94,12 @@ public final class LiveOutlineBuilder {
     private static final float DISC_SPAN_FACTOR = 1.15f;
     private static final float DISC_SPACING_FACTOR = 0.85f;
     private static final int DISC_MAX_PER_SEGMENT = 48;
+    /**
+     * Below this bulge (device pixels) between a sub-quad and the curve it
+     * spans there is literally nothing for a cover disc to fill, so none are
+     * emitted. Guards the inverse-width disc count against thin pens.
+     */
+    private static final float MIN_COVER_SAGITTA_PX = 0.35f;
 
     /** Committed quads, 8 floats each: {l0x,l0y, l1x,l1y, r1x,r1y, r0x,r0y}. */
     private float[] quads = new float[64 * 8];
@@ -134,9 +156,31 @@ public final class LiveOutlineBuilder {
     private final float[] midScratch = new float[4];
     /** Final device pixels per page unit for scale-adaptive tessellation. */
     private float pixelsPerPageUnit = 1f;
+    /**
+     * v2.2.2 live visibility floor (page units): the same 1-device-pixel
+     * minimum the commit-time mesh applies, so a thin pen at deep zoom does
+     * not draw a fainter live stroke than the one it commits to (the
+     * "thin fountain pen ink is barely there" half of the fast-cursive
+     * report). 0 when the scale is unknown (floor disabled).
+     */
+    private float minVisibleWidth;
 
     public void setPixelsPerPageUnit(float scale) {
         pixelsPerPageUnit = Float.isFinite(scale) && scale > 1f ? scale : 1f;
+        minVisibleWidth = BrushEngine.MIN_VISIBLE_WIDTH_PX / pixelsPerPageUnit;
+    }
+
+    /**
+     * Distance below which a new sample is welded into the previous kept one:
+     * the width-proportional page-unit rule, clamped so it never exceeds
+     * {@link #MAX_WELD_PX} on screen. See that constant for why the pixel
+     * clamp matters at deep zoom.
+     */
+    private float weldDistance(float width) {
+        float pageRule = Math.max(WELD_DISTANCE, width * WELD_WIDTH_FACTOR);
+        float pixelCap = MAX_WELD_PX / pixelsPerPageUnit;
+        // WELD_DISTANCE is an absolute floor: below it normals degenerate.
+        return Math.max(WELD_DISTANCE, Math.min(pageRule, pixelCap));
     }
 
     /** Drops all state; call on stroke start/cancel. */
@@ -156,6 +200,8 @@ public final class LiveOutlineBuilder {
      * Every accepted point beyond the second commits one quad.
      */
     public void addPoint(float x, float y, float width) {
+        // v2.2.2: never render live ink thinner than the commit-time floor.
+        width = Math.max(width, minVisibleWidth);
         if (accepted == 0) {
             x0 = x;
             y0 = y;
@@ -165,7 +211,7 @@ public final class LiveOutlineBuilder {
         }
         float dx = x - x1OrX0();
         float dy = y - y1OrY0();
-        float minDist = Math.max(WELD_DISTANCE, width * WELD_WIDTH_FACTOR);
+        float minDist = weldDistance(width);
         if (dx * dx + dy * dy < minDist * minDist) {
             return; // welded: vertex density tracks stroke width
         }
@@ -246,18 +292,37 @@ public final class LiveOutlineBuilder {
             qw = ew;
         }
         if (sub > 1) {
-            // v2.2.0 width-adaptive cover discs (see DISC_SPACING_FACTOR):
-            // spread along the spline so neighbors stay within ~0.85·width.
-            float chord = (float) Math.hypot(x1 - x0, y1 - y0);
-            float minW = Math.max(Math.min(w0, w1), 1e-3f);
-            int discs = (int) Math.ceil(DISC_SPAN_FACTOR * chord
-                    / (DISC_SPACING_FACTOR * minW));
-            discs = Math.max(1, Math.min(discs, DISC_MAX_PER_SEGMENT));
-            for (int i = 0; i < discs; i++) {
-                float t = (i + 0.5f) / discs;
-                SplineRefiner.eval(cx0, cy0, x0, y0, x1, y1, x, y, t,
-                        midOut, midScratch);
-                appendMidpoint(midOut[0], midOut[1], w0 + (w1 - w0) * t);
+            // The discs exist for one reason: to fill the crescent between the
+            // straight sub-quad and the curve it cuts across. v3.2.0 measures
+            // that crescent instead of assuming it exists.
+            //
+            // The count below is chord/width, i.e. INVERSELY proportional to
+            // the pen width, and it used to be emitted for every subdivided
+            // segment regardless of how much the segment actually bent. A thin
+            // pen therefore stamped discs all over nearly-straight segments
+            // where there was nothing to cover: a 0.5pt pen produced 558 discs
+            // on a stroke where a 3pt pen produced 242, for identical geometry.
+            // That is the width-dependent cost behind "the thinnest line can't
+            // keep up with fast cursive writing, a thicker one is fine".
+            SplineRefiner.eval(cx0, cy0, x0, y0, x1, y1, x, y, 0.5f,
+                    midOut, midScratch);
+            float sagittaPx = (float) Math.hypot(
+                    midOut[0] - (x0 + x1) * 0.5f,
+                    midOut[1] - (y0 + y1) * 0.5f) * pixelsPerPageUnit;
+            if (sagittaPx >= MIN_COVER_SAGITTA_PX) {
+                // v2.2.0 width-adaptive cover discs (see DISC_SPACING_FACTOR):
+                // spread along the spline so neighbors stay within ~0.85·width.
+                float chord = (float) Math.hypot(x1 - x0, y1 - y0);
+                float minW = Math.max(Math.min(w0, w1), 1e-3f);
+                int discs = (int) Math.ceil(DISC_SPAN_FACTOR * chord
+                        / (DISC_SPACING_FACTOR * minW));
+                discs = Math.max(1, Math.min(discs, DISC_MAX_PER_SEGMENT));
+                for (int i = 0; i < discs; i++) {
+                    float t = (i + 0.5f) / discs;
+                    SplineRefiner.eval(cx0, cy0, x0, y0, x1, y1, x, y, t,
+                            midOut, midScratch);
+                    appendMidpoint(midOut[0], midOut[1], w0 + (w1 - w0) * t);
+                }
             }
         }
         zx = x0;

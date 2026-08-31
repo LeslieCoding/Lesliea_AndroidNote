@@ -48,8 +48,11 @@ public final class BrushEngine {
      * nib floor while preserving a strong 4.5x fast/slow contrast.
      */
     private static final float VELOCITY_MIN_FACTOR = 0.22f;
-    /** Trailing window used to average pen speed (hides per-sample jitter). */
-    private static final long VELOCITY_WINDOW_MS = 40L;
+    /** Trailing window used to average pen speed (hides per-sample jitter).
+     *  v2.2.2: 40 -> 30ms — the width follows a speed change ~10ms sooner
+     *  (fast strokes reach their thinned width before the segment ends)
+     *  while still averaging ~7 stylus samples at 240Hz. */
+    private static final long VELOCITY_WINDOW_MS = 30L;
     /** Tilt (radians) treated as "fully tilted" (AXIS_TILT range is 0..PI/2). */
     private static final float MAX_TILT = (float) (Math.PI / 2.0);
     /** Fixed calligraphy nib angle used when the point has no orientation. */
@@ -62,10 +65,31 @@ public final class BrushEngine {
     private static final float TAPER_LENGTH_MULTIPLE = 10f;
     /** Width floor at the very tip of a taper (fraction of full width). */
     private static final float TAPER_MIN_FACTOR = 0.05f;
+    /** Each taper ramp may cover at most this fraction of the stroke length. */
+    private static final float MAX_TAPER_FRACTION = 0.35f;
+    /** Ink is never rendered thinner than this many device pixels. Package
+     *  visible so {@link LiveOutlineBuilder} applies the same floor live. */
+    static final float MIN_VISIBLE_WIDTH_PX = 1.0f;
     /** Absolute weld floor for centerline points (avoids zero normals). */
     private static final float WELD_DISTANCE = 0.05f;
     /** Center weld distance also scales with local width (outline dedup). */
     private static final float WELD_WIDTH_FACTOR = 0.5f;
+    /**
+     * v2.4.0 upper bound on the weld distance, in final device pixels — the
+     * commit-time twin of {@code LiveOutlineBuilder.MAX_WELD_PX}.
+     *
+     * <p>The page-unit weld above discards anything the user drew finer than
+     * {@code 0.5 * width}. When they zoom in to write something small, the
+     * features they are drawing *are* small in page units, so that rule
+     * quantises exactly the detail they zoomed in for. Clamping it in device
+     * pixels keeps the mesh as detailed as the output it is being meshed for,
+     * and — since the live builder applies the same clamp — keeps the live
+     * stroke and the committed one identical, so nothing shifts on pen-up.
+     *
+     * <p>Renders at low zoom are unaffected: there the page-unit rule is
+     * already the smaller of the two.
+     */
+    private static final float MAX_WELD_PX = 1.5f;
     /** Non-final points this close to the stroke end are pen-lift noise. */
     private static final float END_NOISE_DISTANCE = 2f;
     /** Stroke-head samples whose pressure is averaged (anti fat-head). */
@@ -183,12 +207,46 @@ public final class BrushEngine {
         float totalLength = distFromStart[n - 1];
         float startLen = preset.taperStart * preset.baseWidth * TAPER_LENGTH_MULTIPLE;
         float endLen = preset.taperEnd * preset.baseWidth * TAPER_LENGTH_MULTIPLE;
+        // v3.2.0: a taper may never consume the whole stroke.
+        //
+        // The lengths above depend only on the preset, never on how long the
+        // stroke actually is. The fountain pen's two ramps come to 3.25 page
+        // units — LONGER than a cursive ligature — so a short connecting stroke
+        // sat inside both ramps over its entire length and the two factors
+        // multiplied: a 2 page-unit stroke rendered at 16% of the pen's nominal
+        // width. It was drawn, just as a hairline beside full-width neighbours,
+        // which reads as the pen having skipped that stroke. At 0.5pt that
+        // hairline is about one device pixel; at 3pt the same 16% is still ~6px,
+        // which is exactly why only the thinnest setting looked broken.
+        // Capping each ramp at a fraction of the real stroke length keeps the
+        // fountain-pen character on normal strokes while guaranteeing every
+        // stroke has a full-width middle.
+        float maxTaperLen = totalLength * MAX_TAPER_FRACTION;
+        startLen = Math.min(startLen, maxTaperLen);
+        endLen = Math.min(endLen, maxTaperLen);
+        // v3.2.0 visible-tip floor. TAPER_MIN_FACTOR is a FRACTION of the pen
+        // width, and the two tapers multiply, so a short stroke sits inside
+        // both ramps at once. At 3pt the tapered tip is still a couple of
+        // pixels wide; at the thinnest 0.5pt setting it drops to 0.025 page
+        // units — under a third of a device pixel — and anti-aliases away to
+        // nothing. Cursive writing is made of exactly those short strokes, so
+        // the thinnest pen appeared to drop connecting strokes entirely while a
+        // slightly thicker one was fine. Never let ink render thinner than it
+        // can be seen.
+        float minVisibleWidth = pixelsPerPageUnit > 0f
+                ? MIN_VISIBLE_WIDTH_PX / pixelsPerPageUnit : 0f;
         for (int i = 0; i < n; i++) {
             if (startLen > 0f) {
                 widths[i] *= taperFactorStart(distFromStart[i], startLen);
             }
             if (endLen > 0f) {
                 widths[i] *= taperFactorEnd(totalLength - distFromStart[i], endLen);
+            }
+            // Only ever raises a width that would be invisible; a stroke the
+            // user set thinner than one pixel still renders at its own width
+            // when that is already above the floor.
+            if (widths[i] < minVisibleWidth) {
+                widths[i] = Math.min(minVisibleWidth, preset.baseWidth);
             }
         }
         return buildMesh(center, widths, opacities, preset.color, n,
@@ -260,6 +318,20 @@ public final class BrushEngine {
     // Meshing
     // ------------------------------------------------------------------
 
+    /**
+     * Weld radius for one centerline point: the width-proportional page-unit
+     * rule, clamped so it never exceeds {@link #MAX_WELD_PX} in the device
+     * pixels this mesh is being built for. Mirrors
+     * {@code LiveOutlineBuilder.weldDistance} so live and committed geometry
+     * keep the same knots.
+     */
+    private static float weldDistance(float width, float pixelsPerPageUnit) {
+        float pageRule = Math.max(WELD_DISTANCE, width * WELD_WIDTH_FACTOR);
+        float scale = Float.isFinite(pixelsPerPageUnit) && pixelsPerPageUnit > 1f
+                ? pixelsPerPageUnit : 1f;
+        return Math.max(WELD_DISTANCE, Math.min(pageRule, MAX_WELD_PX / scale));
+    }
+
     private static StrokeMesh buildMesh(float[] centerAll, float[] widthsAll,
                                         float[] opacitiesAll, int color, int n,
                                         float[] distFromStart, float totalLength,
@@ -276,13 +348,22 @@ public final class BrushEngine {
             if (m > 0 && i < n - 1) {
                 // Pen-lift noise: non-final points right at the stroke tail
                 // would add spurious spikes; drop them.
-                if (totalLength - distFromStart[i] < END_NOISE_DISTANCE) {
+                //
+                // v3.2.0: this window is a fixed 2 page units, which is longer
+                // than an entire cursive ligature. On a 2 page-unit stroke it
+                // discarded EVERY intermediate sample, leaving just the two
+                // endpoints — and both endpoints sit at the taper minimum, so
+                // the whole stroke rendered at ~16% of the pen's width. Scaling
+                // the window down for short strokes keeps its purpose (trimming
+                // the last few samples of pen-lift wobble) without letting it
+                // consume the stroke.
+                if (totalLength - distFromStart[i]
+                        < Math.min(END_NOISE_DISTANCE, totalLength * 0.15f)) {
                     continue;
                 }
                 float dx = centerAll[i * 2] - centerTmp[(m - 1) * 2];
                 float dy = centerAll[i * 2 + 1] - centerTmp[(m - 1) * 2 + 1];
-                float minDist = Math.max(WELD_DISTANCE,
-                        widthsAll[i] * WELD_WIDTH_FACTOR);
+                float minDist = weldDistance(widthsAll[i], pixelsPerPageUnit);
                 if (dx * dx + dy * dy < minDist * minDist) {
                     continue;
                 }

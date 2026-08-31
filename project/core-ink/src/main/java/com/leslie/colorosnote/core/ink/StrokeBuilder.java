@@ -194,9 +194,20 @@ public final class StrokeBuilder {
             if (stroking && currentIndex >= 0
                     && event.getToolType(currentIndex) != MotionEvent.TOOL_TYPE_STYLUS) {
                 cancelStroke();
-                gestureRejected = false;
             }
-            if (!stroking && !gestureRejected) {
+            // v3.0.1: the pen always wins, even when the gesture opened with a
+            // touch that palm rejection turned away.
+            //
+            // This used to clear gestureRejected only inside the branch above —
+            // that is, only when a finger stroke was actually in progress, which
+            // under STYLUS_ONLY never happens because the finger is rejected
+            // outright. So when the palm landed a moment BEFORE the pen (what
+            // naturally happens writing quickly), gestureRejected stayed true,
+            // beginStroke was skipped, and the whole pen stroke was silently
+            // discarded until the hand lifted and a fresh gesture began. That is
+            // the "sometimes writing fast just doesn't register" report.
+            gestureRejected = false;
+            if (!stroking) {
                 beginStroke(event, index);
             }
             return true;
@@ -437,7 +448,8 @@ public final class StrokeBuilder {
     // ------------------------------------------------------------------
 
     /** Deep-enough copy so later preset edits never alter finished strokes. */
-    static BrushPreset copyPreset(BrushPreset src) {
+    /** Deep copy of a preset; public so renderers can derive scaled variants. */
+    public static BrushPreset copyPreset(BrushPreset src) {
         BrushPreset c = new BrushPreset();
         c.id = src.id;
         c.name = src.name;

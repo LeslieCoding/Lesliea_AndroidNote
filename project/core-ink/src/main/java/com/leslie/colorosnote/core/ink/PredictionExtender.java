@@ -27,6 +27,10 @@ public final class PredictionExtender {
     static final float MIN_SPEED_UNITS_PER_S = 120f;
     /** Spacing of synthesized extension samples. */
     static final long STEP_MS = 4;
+    /** Turn-rate clamp, so a noisy sample triple cannot spin up a spiral. */
+    static final float MAX_TURN_RAD_PER_MS = 0.02f;
+    /** Above this per-step turn the pen is cornering; shorten the horizon. */
+    static final float SHARP_TURN_RAD_PER_STEP = 0.05f;
 
     private PredictionExtender() {
     }
@@ -57,23 +61,84 @@ public final class PredictionExtender {
         if (Math.hypot(vx, vy) * 1000f < MIN_SPEED_UNITS_PER_S) {
             return;
         }
+        // v3.0.1: follow the curve instead of shooting off along the tangent.
+        // A straight extrapolation of up to MAX_EXTENSION_UNITS is invisible on
+        // a straight stroke but very visible on a curved one: every frame paints
+        // a straight spur several page units long at the pen tip, so drawing a
+        // circle quickly showed up as a polygon of those spurs. Rotating the
+        // velocity by the turn rate the pen is already exhibiting keeps the
+        // predicted strip on the arc.
+        float turnPerMs = estimateTurnPerMs(predicted, dtMs);
+        // A hard corner is not predictable — halve the horizon rather than
+        // guess a spiral through it.
+        long horizon = target;
+        if (Math.abs(turnPerMs) * STEP_MS > SHARP_TURN_RAD_PER_STEP) {
+            horizon = last.timestampMs + (target - last.timestampMs) / 2L;
+        }
+
+        float px = last.x;
+        float py = last.y;
+        float travelled = 0f;
+        long prevTs = last.timestampMs;
         for (long t = last.timestampMs + STEP_MS; ; t += STEP_MS) {
-            long ts = Math.min(t, target); // final point lands on the horizon
-            float dx = vx * (ts - last.timestampMs);
-            float dy = vy * (ts - last.timestampMs);
-            if (Math.hypot(dx, dy) > MAX_EXTENSION_UNITS) {
+            long ts = Math.min(t, horizon); // final point lands on the horizon
+            float step = ts - prevTs;
+            if (step <= 0f) {
                 break;
             }
+            // Rotate the velocity by the turn accumulated over this step.
+            float theta = turnPerMs * step;
+            float cos = (float) Math.cos(theta);
+            float sin = (float) Math.sin(theta);
+            float rvx = vx * cos - vy * sin;
+            float rvy = vx * sin + vy * cos;
+            vx = rvx;
+            vy = rvy;
+            float dx = vx * step;
+            float dy = vy * step;
+            travelled += (float) Math.hypot(dx, dy);
+            if (travelled > MAX_EXTENSION_UNITS) {
+                break;
+            }
+            px += dx;
+            py += dy;
             StrokePoint p = new StrokePoint();
-            p.x = last.x + dx;
-            p.y = last.y + dy;
+            p.x = px;
+            p.y = py;
             p.pressure = last.pressure;
             p.timestampMs = ts;
             p.toolType = last.toolType;
             predicted.add(p);
-            if (ts >= target) {
+            prevTs = ts;
+            if (ts >= horizon) {
                 break;
             }
         }
+    }
+
+    /**
+     * Signed turn rate (radians per ms) from the last three predicted samples,
+     * clamped so a noisy triple cannot spin the extension into a spiral.
+     * Returns 0 when there is not enough history — i.e. plain straight-line
+     * extrapolation, the behaviour before v3.0.1.
+     */
+    private static float estimateTurnPerMs(List<StrokePoint> predicted, float dtMs) {
+        int n = predicted.size();
+        if (n < 3 || dtMs <= 0f) {
+            return 0f;
+        }
+        StrokePoint c = predicted.get(n - 1);
+        StrokePoint b = predicted.get(n - 2);
+        StrokePoint a = predicted.get(n - 3);
+        float ax = b.x - a.x;
+        float ay = b.y - a.y;
+        float bx = c.x - b.x;
+        float by = c.y - b.y;
+        if (Math.hypot(ax, ay) < 1e-4f || Math.hypot(bx, by) < 1e-4f) {
+            return 0f;
+        }
+        float angle = (float) Math.atan2(ax * by - ay * bx, ax * bx + ay * by);
+        float perMs = angle / dtMs;
+        return Math.max(-MAX_TURN_RAD_PER_MS, Math.min(MAX_TURN_RAD_PER_MS, perMs));
     }
 }

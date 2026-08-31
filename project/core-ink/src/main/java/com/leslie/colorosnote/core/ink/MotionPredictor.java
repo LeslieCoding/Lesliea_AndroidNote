@@ -55,7 +55,10 @@ public interface MotionPredictor {
  */
 final class AndroidXMotionPredictor implements MotionPredictor {
 
-    private static final String CLASS_NAME = "androidx.input.prediction.MotionEventPredictor";
+    // Package is androidx.input.motionprediction — NOT androidx.input.prediction.
+    // A wrong name here fails silently (Class.forName throws, we fall back to
+    // NoOp), so MotionPredictorClassNameTest pins it against the real artifact.
+    static final String CLASS_NAME = "androidx.input.motionprediction.MotionEventPredictor";
 
     private final Object predictor;
     private final java.lang.reflect.Method recordMethod;
