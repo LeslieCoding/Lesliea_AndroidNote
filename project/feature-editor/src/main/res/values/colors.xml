@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design tokens per spec 28.1 (mirrors app module tokens; module is self-contained) -->
+    <color name="app_background">#F8F6F2</color>
+    <color name="surface_primary">#FFFFFF</color>
+    <color name="surface_secondary">#FAFBFC</color>
+    <color name="text_primary">#17181A</color>
+    <color name="text_secondary">#6B7078</color>
+    <color name="border">#E5E8ED</color>
+    <color name="primary_blue">#2F6BFF</color>
+    <color name="primary_blue_pressed">#2457D6</color>
+    <color name="destructive">#D92D20</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <color name="tool_selected_bg">#1A2F6BFF</color>
+    <color name="popup_surface">#FCFBF9</color>
+    <color name="segment_track">#F1F2F4</color>
+    <color name="workspace_gray">#ECEFF1</color>
+    <color name="recording_red">#E5484D</color>
+    <color name="selection_blue">#802F6BFF</color>
+</resources>

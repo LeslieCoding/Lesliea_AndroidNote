@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_hint">搜索笔记、PDF、文档内容</string>
+    <string name="search_clear">清除</string>
+    <string name="search_result_icon">结果类型</string>
+    <string name="search_filter_all">全部</string>
+    <string name="search_filter_notes">笔记</string>
+    <string name="search_filter_pdf">PDF</string>
+    <string name="search_filter_office">Office</string>
+    <string name="search_filter_ocr">OCR</string>
+    <string name="search_filter_handwriting">手写</string>
+    <string name="search_filter_transcript">转写</string>
+    <string name="search_empty_idle">输入关键词，搜索全部笔记、文档与识别内容</string>
+    <string name="search_empty_result">未找到「%1$s」相关的结果</string>
+    <string name="search_root_folder">资料库</string>
+</resources>

@@ -1,0 +1,20 @@
+# Gradle
+.gradle/
+build/
+
+# Local machine config
+local.properties
+
+# Signing secrets — never commit
+keystore.properties
+*.jks
+*.keystore
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# JVM crash / replay logs
+hs_err_pid*.log
+replay_pid*.log

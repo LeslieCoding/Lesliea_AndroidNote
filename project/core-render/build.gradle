@@ -1,0 +1,13 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+dependencies {
+    implementation project(":core-common")
+    implementation project(":core-model")
+    implementation project(":core-ink")
+    // Document page backgrounds: PdfBackgroundProvider / OfficeBackgroundProvider.
+    implementation project(":document-pdf")
+    implementation project(":document-office")
+}

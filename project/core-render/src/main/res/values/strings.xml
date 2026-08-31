@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Page template picker (shared by feature-editor and feature-library).
+         The five classic names mirror the copies in the feature modules;
+         identical values keep resource merging conflict-free. -->
+    <string name="template_picker_title">页面模板</string>
+    <string name="template_blank">空白</string>
+    <string name="template_lined">横线</string>
+    <string name="template_grid">方格</string>
+    <string name="template_dot">点阵</string>
+    <string name="template_cornell">Cornell</string>
+    <string name="template_cornell_grid">康奈尔方格</string>
+    <string name="template_english">英文四线</string>
+    <string name="template_tianzi">田字格</string>
+    <string name="template_mizi">米字格</string>
+    <string name="template_music">五线谱</string>
+    <string name="template_todo">待办清单</string>
+    <string name="template_daily">日计划</string>
+    <string name="template_weekly">周计划</string>
+    <string name="template_meeting">会议纪要</string>
+</resources>

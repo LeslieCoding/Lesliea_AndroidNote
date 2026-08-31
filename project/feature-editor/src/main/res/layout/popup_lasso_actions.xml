@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Contextual action bar for an active lasso selection (spec 16).
+     Premium card matching the "+" tools panel: caption + icon-over-label
+     cells, red destructive action. Wired in EditorFragment.createSelectionPopup(). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_popup">
+
+    <TextView
+        android:id="@+id/selection_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/selection_move_hint"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/btn_sel_copy"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_sel_copy"
+                android:contentDescription="@string/selection_copy" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/selection_copy" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_sel_cut"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_sel_cut"
+                android:contentDescription="@string/selection_cut" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/selection_cut" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_sel_paste"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_sel_paste"
+                android:contentDescription="@string/selection_paste" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/selection_paste" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_sel_color"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_sel_color"
+                android:contentDescription="@string/selection_color" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/selection_color" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_sel_delete"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_sel_delete"
+                android:tint="@color/destructive"
+                android:contentDescription="@string/selection_delete" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/selection_delete"
+                android:textColor="@color/destructive" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

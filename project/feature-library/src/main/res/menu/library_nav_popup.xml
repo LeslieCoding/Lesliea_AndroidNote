@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/nav_all" android:title="@string/library_nav_all" />
+    <item android:id="@+id/nav_recent" android:title="@string/library_nav_recent" />
+    <item android:id="@+id/nav_favorites" android:title="@string/library_nav_favorites" />
+    <item android:id="@+id/nav_tags" android:title="@string/library_nav_tags" />
+    <item android:id="@+id/nav_trash" android:title="@string/library_nav_trash" />
+</menu>

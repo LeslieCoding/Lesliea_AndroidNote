@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Brush properties popover: color palette, numeric sliders (width, opacity,
+     pressure sensitivity, smoothing, velocity, tilt), and the highlighter
+     "straighten" placeholder toggle. Premium segmented controls + slim
+     sliders; ids are consumed by BrushPropertiesPopup — do not rename.
+
+     Layout rules (hard-won):
+     - Every horizontal label+value row MUST set baselineAligned="false"
+       (v1.4.19 bug: default baseline alignment squeezed the wrap_content
+       texts to a bottom-anchored sliver and half-clipped them), and carries
+       the 14dp top margin on the row itself (children keep marginTop=0).
+     - Content is wrapped in a ScrollView; BrushPropertiesPopup caps the popup
+       height to the space below the anchor so overflow scrolls instead of
+       clipping. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:background="@drawable/bg_popup">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/label_style"
+            style="@style/EditorPopupLabel"
+            android:layout_marginTop="0dp"
+            android:text="@string/brush_style"
+            android:visibility="gone" />
+
+        <HorizontalScrollView
+            android:id="@+id/style_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:scrollbars="none"
+            android:overScrollMode="never"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/style_row"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <TextView
+            style="@style/EditorPopupLabel"
+            android:text="@string/brush_color" />
+
+        <GridLayout
+            android:id="@+id/palette_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:columnCount="6" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="10dp">
+
+            <EditText
+                android:id="@+id/edit_custom_color"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="38dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="@drawable/bg_input"
+                android:hint="@string/brush_custom_color_hint"
+                android:textColorHint="@color/text_secondary"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:importantForAutofill="no" />
+
+            <Button
+                android:id="@+id/btn_apply_color"
+                style="?attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/brush_apply"
+                android:textColor="@color/primary_blue"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                style="@style/EditorPopupLabel"
+                android:layout_marginTop="0dp"
+                android:text="@string/brush_width" />
+
+            <TextView
+                android:id="@+id/text_width_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seek_width"
+            style="@style/EditorSeekBar"
+            android:max="119"
+            android:progress="5" />
+
+        <TextView
+            style="@style/EditorPopupLabel"
+            android:text="@string/brush_opacity" />
+
+        <SeekBar
+            android:id="@+id/seek_opacity"
+            style="@style/EditorSeekBar"
+            android:max="90"
+            android:progress="90" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                style="@style/EditorPopupLabel"
+                android:layout_marginTop="0dp"
+                android:text="@string/brush_pressure_sensitivity" />
+
+            <TextView
+                android:id="@+id/text_pressure_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seek_pressure"
+            style="@style/EditorSeekBar"
+            android:max="100"
+            android:progress="0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                style="@style/EditorPopupLabel"
+                android:layout_marginTop="0dp"
+                android:text="@string/brush_smoothing" />
+
+            <TextView
+                android:id="@+id/text_smoothing_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seek_smoothing"
+            style="@style/EditorSeekBar"
+            android:max="100"
+            android:progress="0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                style="@style/EditorPopupLabel"
+                android:layout_marginTop="0dp"
+                android:text="@string/brush_velocity" />
+
+            <TextView
+                android:id="@+id/text_velocity_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seek_velocity"
+            style="@style/EditorSeekBar"
+            android:max="100"
+            android:progress="0" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:baselineAligned="false"
+            android:layout_marginTop="14dp">
+
+            <TextView
+                style="@style/EditorPopupLabel"
+                android:layout_marginTop="0dp"
+                android:text="@string/brush_tilt" />
+
+            <TextView
+                android:id="@+id/text_tilt_value"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:gravity="end"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:letterSpacing="0.06" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/seek_tilt"
+            style="@style/EditorSeekBar"
+            android:max="100"
+            android:progress="0" />
+
+        <Switch
+            android:id="@+id/switch_straighten"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/brush_straighten"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>

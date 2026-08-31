@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Rounded ripple for list rows (bottom sheet / nav rows). -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#142F6BFF">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp" />
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</ripple>

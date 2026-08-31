@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Search bar: milky pill with hairline border ("奶白高级感"). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/popup_surface" />
+    <stroke android:width="0.5dp" android:color="@color/border" />
+    <corners android:radius="24dp" />
+</shape>

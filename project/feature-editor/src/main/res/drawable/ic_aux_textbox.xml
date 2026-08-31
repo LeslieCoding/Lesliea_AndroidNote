@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Original text-box icon: frame with a T glyph -->
+    <path
+        android:pathData="M4,5.5 L20,5.5 L20,18.5 L4,18.5 Z"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path
+        android:pathData="M9,9.5 L15,9.5 M12,9.5 L12,15"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" />
+</vector>

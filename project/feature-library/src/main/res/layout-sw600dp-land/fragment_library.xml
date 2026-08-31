@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Large-screen landscape layout (spec 28.3): 162dp collapsible sidebar +
+     adaptive content (the hamburger in the content top bar toggles it).
+     162dp ≈ 1cm narrower than the previous 216dp (user request v2.1.4);
+     sidebar content needs only ~90dp minimum. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <include
+        android:id="@+id/sidebar"
+        layout="@layout/library_sidebar"
+        android:layout_width="162dp"
+        android:layout_height="match_parent" />
+
+    <View
+        android:id="@+id/sidebarDivider"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/border" />
+
+    <include
+        android:id="@+id/content"
+        layout="@layout/library_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+</LinearLayout>

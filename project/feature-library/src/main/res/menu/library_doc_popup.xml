@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_open" android:title="@string/library_action_open" />
+    <item android:id="@+id/action_rename" android:title="@string/library_action_rename" />
+    <item android:id="@+id/action_move" android:title="@string/library_action_move" />
+    <item android:id="@+id/action_copy" android:title="@string/library_action_copy" />
+    <item android:id="@+id/action_favorite" android:title="@string/library_action_favorite" />
+    <item android:id="@+id/action_tag" android:title="@string/library_action_tag" />
+    <item android:id="@+id/action_export" android:title="@string/library_action_export" />
+    <item android:id="@+id/action_delete" android:title="@string/library_action_delete" />
+</menu>

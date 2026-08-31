@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Milky-white popup card (slightly warm white, "高级感" base surface). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="20dp" />
+    <solid android:color="@color/popup_surface" />
+    <stroke android:width="0.5dp" android:color="@color/border" />
+</shape>

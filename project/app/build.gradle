@@ -1,0 +1,103 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "com.leslie.colorosnote"
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.leslie.colorosnote"
+        minSdk = 28
+        targetSdk = 34
+        versionCode = 58
+        versionName = "2.2.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables { useSupportLibrary = true }
+    }
+
+    signingConfigs {
+        release {
+            def props = new Properties()
+            def f = rootProject.file("keystore.properties")
+            if (f.exists()) {
+                f.withInputStream { props.load(it) }
+                storeFile = rootProject.file(props["storeFile"])
+                storePassword = props["storePassword"]
+                keyAlias = props["keyAlias"]
+                keyPassword = props["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled = false
+            shrinkResources = false
+        }
+        release {
+            minifyEnabled = false // TODO(TEMP-TEST): 临时关 R8 以便驱动缩放验证；交付前还原 true
+            shrinkResources = false // TODO(TEMP-TEST)
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            if (rootProject.file("keystore.properties").exists()) {
+                signingConfig = signingConfigs.release
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        // The app module uses no generated bindings of its own; leaving
+        // viewBinding off avoids AGP re-generating library-layout bindings
+        // (e.g. FragmentEditorBinding) against the non-transitive app R class.
+        viewBinding = false
+    }
+
+    packaging {
+        resources {
+            excludes += ["META-INF/DEPENDENCIES", "META-INF/LICENSE", "META-INF/LICENSE.txt",
+                         "META-INF/NOTICE", "META-INF/NOTICE.txt", "META-INF/ASL2.0",
+                         "META-INF/*.kotlin_module"]
+        }
+    }
+}
+
+dependencies {
+    implementation project(":core-common")
+    implementation project(":core-model")
+    implementation project(":core-storage")
+    implementation project(":core-ink")
+    implementation project(":core-render")
+    implementation project(":core-search")
+    implementation project(":core-security")
+    implementation project(":feature-library")
+    implementation project(":feature-editor")
+    implementation project(":feature-import")
+    implementation project(":feature-export")
+    implementation project(":feature-audio")
+    implementation project(":feature-ocr")
+    implementation project(":feature-handwriting")
+    implementation project(":feature-search")
+    implementation project(":feature-settings")
+    implementation project(":document-pdf")
+    implementation project(":document-office")
+    implementation project(":document-caj")
+
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.recyclerview
+    implementation libs.constraintlayout
+    implementation libs.lifecycle.runtime
+    implementation libs.lifecycle.process
+    implementation libs.work.runtime
+    implementation libs.room.runtime
+    implementation "com.google.guava:guava:31.1-android"
+
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.espresso.core
+}

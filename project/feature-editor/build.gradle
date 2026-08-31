@@ -1,0 +1,37 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+android {
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation project(":core-common")
+    implementation project(":core-model")
+    implementation project(":core-ink")
+    implementation project(":core-render")
+    implementation project(":core-storage")
+    // PDF/OFFICE imported-document backgrounds (providers live in core-render,
+    // the payloads/engines here).
+    implementation project(":document-office")
+    implementation project(":document-pdf")
+    implementation project(":feature-settings")
+    implementation project(":feature-audio")
+    // 手写转文字 / 图片 OCR engines (ML Kit bundled, no GMS requirement).
+    implementation project(":feature-handwriting")
+    implementation project(":feature-ocr")
+    // Incremental search index hooks (text box / page title / rename).
+    implementation project(":feature-search")
+    // Needed for InkNoteDatabase's RoomDatabase supertype on the compile
+    // classpath (core-storage keeps Room as `implementation`); same pattern
+    // as feature-library / feature-search.
+    implementation libs.room.runtime
+    implementation libs.appcompat
+    implementation libs.material
+    implementation libs.recyclerview
+    implementation libs.constraintlayout
+}

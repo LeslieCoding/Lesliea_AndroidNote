@@ -1,0 +1,10 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+dependencies {
+    implementation project(":core-common")
+    // @WorkerThread / @NonNull contracts; resolvable via google()/aliyun mirror.
+    implementation "androidx.annotation:annotation:1.8.2"
+}

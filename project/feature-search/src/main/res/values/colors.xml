@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design tokens per spec 28.1; mirrors app module tokens so this module
+         stays decoupled from :app. Keep values in sync with app/res/values/colors.xml. -->
+    <color name="app_background">#F8F6F2</color>
+    <color name="surface_primary">#FFFFFF</color>
+    <color name="text_primary">#17181A</color>
+    <color name="text_secondary">#6B7078</color>
+    <color name="border">#E5E8ED</color>
+    <color name="primary_blue">#2F6BFF</color>
+
+    <!-- Module-local additions -->
+    <color name="search_highlight">#553F6BFF</color>
+</resources>

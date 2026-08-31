@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One template cell: live-rendered page preview + name; the selected-state
+     chip background is applied in code. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="96dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/template_preview"
+        android:layout_width="72dp"
+        android:layout_height="96dp"
+        android:background="@drawable/bg_template_preview"
+        android:clipToOutline="true"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/template_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textSize="11sp"
+        android:textColor="#17181A" />
+</LinearLayout>

@@ -1,0 +1,26 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+android {
+    testOptions {
+        // core-common's AppLogger routes through android.util.Log, which is a
+        // throwing stub in local JVM unit tests; return defaults instead.
+        // Same convention as document-office.
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    implementation project(":core-common")
+    implementation project(":core-model")
+    implementation project(":core-storage")
+    implementation project(":core-security")
+    implementation project(":document-pdf")
+    implementation project(":document-office")
+    implementation project(":document-caj")
+    implementation project(":feature-ocr")
+    // @WorkerThread / @NonNull contracts (same as document-pdf / feature-ocr).
+    implementation "androidx.annotation:annotation:1.8.2"
+}

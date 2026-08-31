@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/editor_thumb_width"
+    android:layout_height="match_parent"
+    android:layout_marginEnd="8dp"
+    android:padding="4dp">
+
+    <ImageView
+        android:id="@+id/thumb_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_toolbar"
+        android:scaleType="centerCrop"
+        android:clipToOutline="true" />
+
+    <ImageView
+        android:id="@+id/thumb_bookmark"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="top|end"
+        android:layout_margin="4dp"
+        android:src="@drawable/ic_bookmark_filled"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/thumb_index"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="2dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:background="@drawable/bg_popup"
+        android:textSize="11sp"
+        android:textColor="@color/text_secondary" />
+
+    <View
+        android:id="@+id/thumb_selected"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_thumb_selected"
+        android:visibility="gone" />
+</FrameLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Eraser popover: erase mode, layer filter, size. Premium segmented
+     controls + slim slider; ids consumed by EraserPopup — do not rename. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_popup">
+
+    <TextView
+        style="@style/EditorPopupLabel"
+        android:layout_marginTop="0dp"
+        android:text="@string/eraser_mode" />
+
+    <RadioGroup
+        android:id="@+id/group_eraser_mode"
+        style="@style/EditorSegmentTrack">
+
+        <RadioButton
+            android:id="@+id/radio_eraser_pixel"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_pixel" />
+
+        <RadioButton
+            android:id="@+id/radio_eraser_stroke"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_stroke" />
+
+        <RadioButton
+            android:id="@+id/radio_eraser_area"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_area" />
+    </RadioGroup>
+
+    <TextView
+        style="@style/EditorPopupLabel"
+        android:text="@string/eraser_filter" />
+
+    <RadioGroup
+        android:id="@+id/group_eraser_filter"
+        style="@style/EditorSegmentTrack">
+
+        <RadioButton
+            android:id="@+id/radio_filter_all"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_filter_all" />
+
+        <RadioButton
+            android:id="@+id/radio_filter_ink"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_filter_ink" />
+
+        <RadioButton
+            android:id="@+id/radio_filter_highlight"
+            style="@style/EditorSegment"
+            android:text="@string/eraser_filter_highlight" />
+    </RadioGroup>
+
+    <TextView
+        style="@style/EditorPopupLabel"
+        android:text="@string/eraser_size" />
+
+    <SeekBar
+        android:id="@+id/seek_eraser_size"
+        style="@style/EditorSeekBar"
+        android:max="60"
+        android:progress="16" />
+</LinearLayout>

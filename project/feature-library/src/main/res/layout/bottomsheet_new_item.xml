@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "+" new-item menu (spec 24): grouped bottom sheet, 4 create + 8 import.
+     Each row = pastel rounded icon tile + label (iPad-style "奶白高级感"). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_sheet_handle" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+    <TextView
+        style="@style/NewItemGroupHeader"
+        android:text="@string/newitem_group_create" />
+
+    <LinearLayout
+        android:id="@+id/rowNewBlank"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_blue"
+            android:src="@drawable/ic_note"
+            android:tint="@color/ni_glyph_blue" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_blank_note" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowNewTemplate"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_violet"
+            android:src="@drawable/ic_template"
+            android:tint="@color/ni_glyph_violet" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_template_note" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowNewFolder"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_amber"
+            android:src="@drawable/ic_folder"
+            android:tint="@color/ni_glyph_amber" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_folder" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowNewInfinite"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_teal"
+            android:src="@drawable/ic_infinite"
+            android:tint="@color/ni_glyph_teal" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_infinite_canvas" />
+    </LinearLayout>
+
+    <TextView
+        style="@style/NewItemGroupHeader"
+        android:text="@string/newitem_group_import" />
+
+    <LinearLayout
+        android:id="@+id/rowImportPdf"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_red"
+            android:src="@drawable/ic_pdf"
+            android:tint="@color/ni_glyph_red" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_pdf" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportWord"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_word"
+            android:src="@drawable/ic_word"
+            android:tint="@color/ni_glyph_word" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_word" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportPpt"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_orange"
+            android:src="@drawable/ic_ppt"
+            android:tint="@color/ni_glyph_orange" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_ppt" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportExcel"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_green"
+            android:src="@drawable/ic_excel"
+            android:tint="@color/ni_glyph_green" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_excel" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportImage"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_pink"
+            android:src="@drawable/ic_image"
+            android:tint="@color/ni_glyph_pink" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_image" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportCaj"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_indigo"
+            android:src="@drawable/ic_file"
+            android:tint="@color/ni_glyph_indigo" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_caj" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportScan"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_cyan"
+            android:src="@drawable/ic_scan"
+            android:tint="@color/ni_glyph_cyan" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_scan" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowImportFile"
+        style="@style/NewItemRow">
+        <ImageView
+            style="@style/NewItemTile"
+            android:background="@drawable/bg_ni_tile_gray"
+            android:src="@drawable/ic_file"
+            android:tint="@color/ni_glyph_gray" />
+        <TextView style="@style/NewItemLabel" android:text="@string/newitem_import_file" />
+    </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

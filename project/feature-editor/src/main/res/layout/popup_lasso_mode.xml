@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lasso mode popover (second tap on the lasso tool): free-form vs
+     rectangle selection. Same premium card + segmented control as the
+     eraser popover; ids consumed by LassoModePopup — do not rename. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_popup">
+
+    <TextView
+        style="@style/EditorPopupLabel"
+        android:layout_marginTop="0dp"
+        android:text="@string/lasso_mode" />
+
+    <RadioGroup
+        android:id="@+id/group_lasso_mode"
+        style="@style/EditorSegmentTrack">
+
+        <RadioButton
+            android:id="@+id/radio_lasso_free"
+            style="@style/EditorSegment"
+            android:text="@string/lasso_mode_free" />
+
+        <RadioButton
+            android:id="@+id/radio_lasso_rect"
+            style="@style/EditorSegment"
+            android:text="@string/lasso_mode_rect" />
+    </RadioGroup>
+</LinearLayout>

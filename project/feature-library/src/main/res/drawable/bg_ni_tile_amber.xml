@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "+" sheet icon tile: soft pastel rounded square ("奶白高级感" 瓷贴). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="14dp" />
+    <solid android:color="@color/ni_tile_amber" />
+</shape>

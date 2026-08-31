@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Original color icon: ink drop with an inner highlight arc -->
+    <path
+        android:pathData="M12,3.2 C12,3.2 5.6,10.2 5.6,14.2 A6.4,6.4 0 0,0 18.4,14.2 C18.4,10.2 12,3.2 12,3.2 Z"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M9,14.5 A3.2,3.2 0 0,0 12,17.6"
+        android:strokeColor="#17181A" android:strokeWidth="1.4"
+        android:strokeLineCap="round" />
+</vector>

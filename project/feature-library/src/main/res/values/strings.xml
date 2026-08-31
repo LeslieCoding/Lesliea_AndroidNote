@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_title">资料库</string>
+    <string name="library_search_hint">搜索笔记</string>
+    <string name="library_nav_content_desc">导航</string>
+
+    <!-- Sidebar navigation -->
+    <string name="library_nav_all">全部笔记</string>
+    <string name="library_nav_recent">最近</string>
+    <string name="library_nav_favorites">收藏</string>
+    <string name="library_nav_tags">标签</string>
+    <string name="library_nav_folders">文件夹</string>
+    <string name="library_nav_trash">垃圾箱</string>
+
+    <!-- Sections / breadcrumb -->
+    <string name="library_root">资料库</string>
+    <string name="library_tag_doc_count">%1$d 篇笔记</string>
+
+    <!-- Empty states -->
+    <string name="library_empty_folder">这个文件夹是空的\n点击右上角 + 新建笔记或导入文件</string>
+    <string name="library_empty_all">还没有笔记\n点击右上角 + 开始记录</string>
+    <string name="library_empty_recent">最近打开的笔记会出现在这里</string>
+    <string name="library_empty_favorites">收藏的笔记会出现在这里</string>
+    <string name="library_empty_tags">还没有标签\n长按笔记选择「加标签」来创建</string>
+    <string name="library_empty_trash">垃圾箱是空的</string>
+
+    <!-- Sort -->
+    <string name="library_sort_name">名称</string>
+    <string name="library_sort_modified">修改时间</string>
+    <string name="library_sort_created">创建时间</string>
+    <string name="library_sort_type">类型</string>
+
+    <!-- Popup menu -->
+    <string name="library_action_open">打开</string>
+    <string name="library_action_rename">重命名</string>
+    <string name="library_action_move">移动</string>
+    <string name="library_action_copy">复制</string>
+    <string name="library_action_favorite">收藏</string>
+    <string name="library_action_unfavorite">取消收藏</string>
+    <string name="library_action_tag">加标签</string>
+    <string name="library_action_export">导出</string>
+    <string name="library_action_delete">删除</string>
+    <string name="library_action_restore">恢复</string>
+    <string name="library_action_delete_forever">永久删除</string>
+
+    <!-- Selection bar -->
+    <string name="library_select_all">全选</string>
+    <string name="library_selected_count">已选 %1$d 项</string>
+    <string name="library_cancel">取消</string>
+
+    <!-- Dialogs -->
+    <string name="library_dialog_rename_title">重命名</string>
+    <string name="library_dialog_new_folder_title">新建文件夹</string>
+    <string name="library_dialog_name_hint">名称</string>
+    <string name="library_dialog_move_title">移动到</string>
+    <string name="library_dialog_root_folder">资料库（根目录）</string>
+    <string name="library_dialog_tag_title">加标签</string>
+    <string name="library_dialog_new_tag">新建标签</string>
+    <string name="library_dialog_delete_title">删除</string>
+    <string name="library_dialog_delete_message">删除后将移入垃圾箱，保留 15 天。</string>
+    <string name="library_dialog_delete_forever_message">永久删除后无法恢复，确定继续？</string>
+    <string name="library_dialog_delete_folder_message">文件夹及其子文件夹将被删除，其中的笔记会移回上一级。</string>
+    <string name="library_confirm">确定</string>
+    <string name="library_trash_days">%1$d 天后自动删除</string>
+
+    <!-- New item bottom sheet (spec 24) -->
+    <string name="newitem_group_create">新建</string>
+    <string name="newitem_group_import">导入</string>
+    <string name="newitem_blank_note">新建空白笔记</string>
+    <string name="newitem_template_note">新建模板笔记</string>
+    <string name="newitem_folder">新建文件夹</string>
+    <string name="newitem_infinite_canvas">新建无限草稿</string>
+    <string name="newitem_import_pdf">导入 PDF</string>
+    <string name="newitem_import_word">导入 Word</string>
+    <string name="newitem_import_ppt">导入 PPT</string>
+    <string name="newitem_import_excel">导入 Excel</string>
+    <string name="newitem_import_image">导入图片</string>
+    <string name="newitem_import_caj">导入 CAJ</string>
+    <string name="newitem_scan">扫描文档</string>
+    <string name="newitem_import_file">从文件管理器导入</string>
+
+    <!-- Template picker -->
+    <string name="library_dialog_template_title">选择模板</string>
+    <string name="template_blank">空白</string>
+    <string name="template_lined">横线</string>
+    <string name="template_grid">方格</string>
+    <string name="template_dot">点阵</string>
+    <string name="template_cornell">Cornell</string>
+
+    <string name="library_default_note_title">未命名笔记</string>
+    <string name="library_default_canvas_title">未命名草稿</string>
+    <string name="library_default_folder_name">新建文件夹</string>
+</resources>

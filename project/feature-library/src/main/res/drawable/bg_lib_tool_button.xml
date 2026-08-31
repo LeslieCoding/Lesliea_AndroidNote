@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Top-bar icon button: milky rounded chip with hairline border + ripple. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#142F6BFF">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <solid android:color="@color/popup_surface" />
+            <stroke android:width="0.5dp" android:color="@color/border" />
+        </shape>
+    </item>
+</ripple>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Left navigation rail (spec 28.3): all notes / recent / favorites / tags /
+     folder tree / trash. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/popup_surface"
+    android:orientation="vertical"
+    android:paddingStart="12dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="12dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="12dp"
+        android:paddingBottom="16dp"
+        android:text="@string/library_title"
+        android:textColor="@color/text_primary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/navAll"
+        style="@style/LibraryNavItem"
+        android:text="@string/library_nav_all" />
+
+    <TextView
+        android:id="@+id/navRecent"
+        style="@style/LibraryNavItem"
+        android:text="@string/library_nav_recent" />
+
+    <TextView
+        android:id="@+id/navFavorites"
+        style="@style/LibraryNavItem"
+        android:text="@string/library_nav_favorites" />
+
+    <TextView
+        android:id="@+id/navTags"
+        style="@style/LibraryNavItem"
+        android:text="@string/library_nav_tags" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="12dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="6dp"
+        android:text="@string/library_nav_folders"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/folderTree"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/border" />
+
+    <TextView
+        android:id="@+id/navTrash"
+        style="@style/LibraryNavItem"
+        android:text="@string/library_nav_trash" />
+</LinearLayout>

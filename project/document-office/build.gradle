@@ -1,0 +1,46 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+android {
+    packagingOptions {
+        resources {
+            // POI/xmlbeans ship duplicate metadata that clashes at APK merge
+            // time. The app module owns the final exclusion list; these keep
+            // this library's own packaging and test classpaths clean.
+            excludes += [
+                    "META-INF/DEPENDENCIES",
+                    "META-INF/LICENSE",
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE",
+                    "META-INF/NOTICE.txt",
+            ]
+        }
+    }
+    testOptions {
+        // core-common's AppLogger routes through android.util.Log, which is a
+        // throwing stub in local JVM unit tests; return defaults instead.
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    implementation project(":core-common")
+    // ImportedDocumentJson codec (gson is already the project's JSON library,
+    // shared with core-model / core-storage).
+    implementation libs.gson
+    // Apache POI: built-in Office import engine (Word/Excel/PowerPoint parsing).
+    // Exposed as api so feature modules can share POI-produced model types
+    // without re-declaring the dependency.
+    api libs.poi
+    api libs.poi.ooxml
+    api libs.poi.scratchpad
+
+    // JVM unit tests need a real XmlPullParser implementation: android.jar's
+    // org.xmlpull.v1 is a stub off-device. On device Android provides it; the
+    // mockable android.jar sits last on the unit-test classpath, so these win
+    // in tests. Test-only, pinned versions (not shipped in the AAR).
+    testImplementation "xmlpull:xmlpull:1.1.3.1"
+    testImplementation "net.sf.kxml:kxml2:2.3.0"
+}

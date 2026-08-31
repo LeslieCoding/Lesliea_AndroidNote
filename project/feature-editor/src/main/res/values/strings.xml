@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Top bar -->
+    <string name="editor_back">返回</string>
+    <string name="editor_title_hint">无标题笔记</string>
+    <string name="editor_undo">撤销</string>
+    <string name="editor_redo">重做</string>
+    <string name="editor_search">搜索</string>
+    <string name="editor_more">更多</string>
+    <string name="editor_fit_page">回到整页视图</string>
+    <string name="editor_zoom_format">%1$d%%</string>
+    <string name="editor_simulated_pressure">当前为模拟压感</string>
+
+    <!-- Core tools -->
+    <string name="tool_fountain_pen">钢笔</string>
+    <string name="tool_ballpoint">圆珠笔</string>
+    <string name="tool_pencil">铅笔</string>
+    <string name="tool_highlighter">荧光笔</string>
+    <string name="tool_eraser">橡皮</string>
+    <string name="tool_lasso">套索</string>
+
+    <!-- Aux tools -->
+    <string name="aux_image">图片</string>
+    <string name="aux_text_box">文本框</string>
+    <string name="aux_shape">形状</string>
+    <string name="aux_tape">胶带</string>
+    <string name="aux_sticker">贴纸</string>
+    <string name="aux_ocr">OCR</string>
+    <string name="aux_handwriting">手写转文字</string>
+    <string name="aux_recording">录音</string>
+    <string name="aux_speech_to_text">语音转文字</string>
+    <string name="aux_page_tools">页面工具</string>
+    <string name="aux_collapse">收起工具条</string>
+    <string name="aux_expand">展开工具条</string>
+    <string name="aux_more_tools">插入工具</string>
+    <string name="aux_tool_coming_soon">该功能即将上线</string>
+
+    <!-- Brush properties panel -->
+    <string name="brush_color">颜色</string>
+    <string name="brush_style">笔刷样式</string>
+    <string name="brush_custom_color">自定义颜色</string>
+    <string name="brush_custom_color_hint">#RRGGBB</string>
+    <string name="brush_apply">确定</string>
+    <string name="brush_width">线宽</string>
+    <string name="brush_opacity">不透明度</string>
+    <string name="brush_pressure_sensitivity">压力灵敏度</string>
+    <string name="brush_smoothing">平滑度</string>
+    <string name="brush_velocity">速度感应</string>
+    <string name="brush_tilt">倾斜感应</string>
+    <string name="brush_straighten">拉直（荧光笔）</string>
+
+    <!-- Eraser panel -->
+    <string name="eraser_mode">擦除方式</string>
+    <string name="eraser_pixel">像素擦除</string>
+    <string name="eraser_stroke">整笔擦除</string>
+    <string name="eraser_area">区域擦除</string>
+    <string name="eraser_filter">擦除范围</string>
+    <string name="eraser_filter_all">全部</string>
+    <string name="eraser_filter_ink">仅手写</string>
+    <string name="eraser_filter_highlight">仅高亮</string>
+    <string name="eraser_size">橡皮大小</string>
+
+    <!-- Selection actions -->
+    <string name="selection_move_hint">拖动移动，双指缩放/旋转</string>
+    <string name="lasso_mode">选择方式</string>
+    <string name="lasso_mode_free">自由套索</string>
+    <string name="lasso_mode_rect">矩形选择</string>
+    <string name="selection_copy">复制</string>
+    <string name="selection_cut">剪切</string>
+    <string name="selection_paste">粘贴</string>
+    <string name="selection_delete">删除</string>
+    <string name="selection_color">改颜色</string>
+    <string name="selection_copied">已复制</string>
+    <string name="selection_clipboard_empty">剪贴板为空</string>
+
+    <!-- More menu / page system -->
+    <string name="menu_rename_document">重命名文档</string>
+    <string name="menu_page_mode">翻页模式</string>
+    <string name="menu_page_mode_single">单页模式</string>
+    <string name="menu_page_mode_continuous">连续滚动模式</string>
+    <string name="menu_page_template">页面模板</string>
+    <string name="menu_page_title">页面标题</string>
+    <string name="menu_page_bookmark">页面书签</string>
+    <string name="menu_insert_blank_page">插入空白页</string>
+    <string name="menu_immersive">沉浸模式</string>
+
+    <string name="template_blank">空白</string>
+    <string name="template_lined">横线</string>
+    <string name="template_grid">方格</string>
+    <string name="template_dot">点阵</string>
+    <string name="template_cornell">Cornell</string>
+
+    <!-- Page context menu -->
+    <string name="page_add">新增页面</string>
+    <string name="page_delete">删除页面</string>
+    <string name="page_duplicate">复制页面</string>
+    <string name="page_move_up">前移一页</string>
+    <string name="page_move_down">后移一页</string>
+    <string name="page_rotate">旋转页面</string>
+    <string name="page_bookmark_on">添加书签</string>
+    <string name="page_bookmark_off">取消书签</string>
+    <string name="page_title_edit">编辑标题</string>
+    <string name="page_keep_at_least_one">至少保留一页</string>
+
+    <!-- Context menu on blank -->
+    <string name="context_paste">粘贴</string>
+    <string name="context_select_all">全选手写</string>
+    <string name="context_insert_image">插入图片</string>
+    <string name="context_change_template">页面模板</string>
+
+    <!-- Recording -->
+    <string name="recording_start">开始录音</string>
+    <string name="recording_stop">停止录音</string>
+    <string name="recording_permission_denied">未授予录音权限，无法录音</string>
+    <string name="recording_pause">暂停</string>
+    <string name="recording_resume">继续</string>
+    <string name="recording_stop_action">停止</string>
+    <string name="recording_saved_title">录音已保存</string>
+    <string name="recording_saved_message">时长 %1$s，已保存到本笔记，可随时回放</string>
+    <string name="recording_play">播放</string>
+    <string name="recording_transcribe">转文字</string>
+    <string name="recording_done">完成</string>
+    <string name="recording_transcribe_unavailable">转文字引擎尚未就绪</string>
+    <string name="recording_transcribing">正在转文字…</string>
+    <string name="recording_transcript_done">转文字完成</string>
+    <string name="recording_transcript_result">转写结果</string>
+    <string name="recording_transcript_empty">未识别到语音内容</string>
+    <string name="recording_transcript_failed">转文字失败：%1$s</string>
+    <string name="recording_list_title">本笔记录音</string>
+    <string name="recording_view_list">查看录音（%1$d 条）</string>
+    <string name="recording_list_empty">暂无录音，点「+ → 录音」开始录制</string>
+    <string name="recording_item_title">录音 · %1$s</string>
+    <string name="recording_item_meta">时长 %1$s · %2$d 段</string>
+    <string name="recording_delete">删除</string>
+    <string name="recording_delete_confirm">确认删除</string>
+    <string name="recording_deleted">已删除录音</string>
+    <string name="recording_playback_failed">播放失败：%1$s</string>
+
+    <!-- Speech to text (spec 20.4) -->
+    <string name="stt_dialog_title">语音转文字</string>
+    <string name="stt_status_idle">未开始，点「开始」后说话</string>
+    <string name="stt_status_loading">正在加载识别模型…</string>
+    <string name="stt_status_recording">录音中，请说话…</string>
+    <string name="stt_status_paused">已暂停</string>
+    <string name="stt_status_recognizing">正在识别…</string>
+    <string name="stt_status_done">识别完成</string>
+    <string name="stt_start">开始</string>
+    <string name="stt_pause">暂停</string>
+    <string name="stt_resume">继续</string>
+    <string name="stt_stop">停止</string>
+    <string name="stt_cancel">取消</string>
+    <string name="stt_insert_textbox">插入为文本框</string>
+    <string name="stt_copy">复制</string>
+    <string name="stt_discard">丢弃</string>
+    <string name="stt_inserted">已插入文本框</string>
+    <string name="stt_copied">已复制到剪贴板</string>
+    <string name="stt_no_result">没有识别到内容</string>
+    <string name="stt_permission_denied">未授予录音权限，无法使用语音转文字</string>
+    <string name="stt_model_title">下载语音模型</string>
+    <string name="stt_model_message">首次使用需要下载离线中文语音模型（约 42MB），下载完成后即可离线识别</string>
+    <string name="stt_model_progress">正在下载语音模型…%1$d%%</string>
+    <string name="stt_model_failed">语音模型下载失败：%1$s</string>
+
+    <!-- Object tools (spec 18/19) -->
+    <string name="obj_shape_picker">选择形状</string>
+    <string name="obj_shape_line">直线</string>
+    <string name="obj_shape_arrow">箭头</string>
+    <string name="obj_shape_double_arrow">双箭头</string>
+    <string name="obj_shape_dashed">虚线</string>
+    <string name="obj_shape_rect">矩形</string>
+    <string name="obj_shape_ellipse">椭圆</string>
+    <string name="obj_shape_triangle">三角形</string>
+    <string name="obj_shape_diamond">菱形</string>
+    <string name="obj_shape_rounded_rect">圆角矩形</string>
+    <string name="obj_tape_config">胶带设置</string>
+    <string name="obj_tape_mode_free">手绘胶带</string>
+    <string name="obj_tape_mode_straight">直线胶带</string>
+    <string name="obj_tape_width">宽度</string>
+    <string name="obj_tape_width_thin">细</string>
+    <string name="obj_tape_width_mid">中</string>
+    <string name="obj_tape_width_thick">粗</string>
+    <string name="obj_tape_pattern">图案</string>
+    <string name="obj_tape_pattern_solid">纯色</string>
+    <string name="obj_tape_pattern_stripes">条纹</string>
+    <string name="obj_tape_pattern_dots">圆点</string>
+    <string name="obj_tape_pattern_grid">格纹</string>
+    <string name="obj_tape_pattern_crosshatch">斜格</string>
+    <string name="obj_tape_pattern_waves">波浪</string>
+    <string name="obj_tape_pattern_hearts">爱心</string>
+    <string name="obj_tape_reveal_all">本页全部显示</string>
+    <string name="obj_tape_cover_all">本页全部遮盖</string>
+    <string name="obj_tape_none">本页没有胶带</string>
+    <string name="obj_sticker_picker">选择贴纸，然后点页面放置</string>
+    <string name="obj_sticker_recent">最近使用</string>
+    <string name="obj_edit_text">编辑文本</string>
+    <string name="obj_bring_front">置顶</string>
+    <string name="obj_send_back">置底</string>
+    <string name="obj_lock">锁定</string>
+    <string name="obj_unlock">解锁</string>
+    <string name="obj_delete">删除</string>
+    <string name="obj_opacity">透明度</string>
+    <string name="obj_locked_hint">对象已锁定</string>
+    <string name="obj_image_no_host">当前界面暂不支持选图</string>
+    <string name="obj_image_decode_failed">图片读取失败</string>
+    <string name="obj_text_hint">输入文本</string>
+    <string name="obj_textbox_arm_hint">点击页面放置文本框，再点框输入文字</string>
+    <string name="obj_shape_arm_hint">拖动绘制形状</string>
+    <string name="obj_sticker_arm_hint">点击页面放置贴纸</string>
+    <string name="obj_font_size">字号</string>
+    <string name="obj_cancel">取消</string>
+
+    <!-- In-document search -->
+    <string name="editor_search_hint">搜索当前笔记内容</string>
+    <string name="editor_search_clear">清空</string>
+    <string name="editor_search_close">收起搜索</string>
+    <string name="editor_search_empty_idle">可搜索文本框、页面标题、PDF/Office 文字</string>
+    <string name="editor_search_empty_result">未找到「%1$s」相关内容</string>
+
+    <!-- 手写转文字 / 图片 OCR (aux tools) -->
+    <string name="recog_no_ink">本页没有可识别的手写内容</string>
+    <string name="recog_model_download_title">下载识别模型</string>
+    <string name="recog_model_downloading">首次使用需下载中文手写模型（约 20MB），请保持网络畅通…</string>
+    <string name="recog_model_download_failed">模型下载失败，请检查网络连接后重试</string>
+    <string name="recog_engine_unavailable">当前设备不支持该识别功能（缺少 Google 服务组件）</string>
+    <string name="recog_ocr_model_not_ready">OCR 模型未就绪，请在联网状态下重试</string>
+    <string name="recog_recognizing">识别中…</string>
+    <string name="recog_failed">识别失败，请重试</string>
+    <string name="recog_empty_result">未识别到文字</string>
+    <string name="recog_result_title_handwriting">手写识别结果</string>
+    <string name="recog_result_title_ocr">图片识别结果</string>
+    <string name="recog_insert_textbox">插入为文本框</string>
+    <string name="recog_copy">复制</string>
+    <string name="recog_copied">已复制到剪贴板</string>
+    <string name="recog_retry">重试</string>
+    <string name="recog_ok">知道了</string>
+
+    <!-- Misc -->
+    <string name="editor_load_failed">文档打开失败</string>
+    <string name="editor_eraser_single_only">连续滚动模式下暂不支持橡皮/套索</string>
+    <string name="editor_close_tab">关闭标签</string>
+</resources>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "More" (⋯) menu panel. Premium card: icon + label rows with trailing
+     state (current value / check). The template row opens the shared
+     TemplatePickerDialog. Wired in EditorFragment.showMoreMenu(). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="224dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
+    android:background="@drawable/bg_popup">
+
+    <LinearLayout
+        android:id="@+id/row_rename"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_menu_edit"
+            android:contentDescription="@string/menu_rename_document" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_rename_document" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row_mode"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_menu_mode"
+            android:contentDescription="@string/menu_page_mode" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_page_mode" />
+        <TextView
+            android:id="@+id/txt_mode_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row_template"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_menu_template"
+            android:contentDescription="@string/menu_page_template" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_page_template" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="@color/border" />
+
+    <LinearLayout
+        android:id="@+id/row_page_title"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_menu_title"
+            android:contentDescription="@string/menu_page_title" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_page_title" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row_bookmark"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_bookmark"
+            android:contentDescription="@string/menu_page_bookmark" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_page_bookmark" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row_insert_blank"
+        style="@style/EditorMenuRow">
+        <ImageView
+            style="@style/EditorMenuRowIcon"
+            android:src="@drawable/ic_aux_page"
+            android:contentDescription="@string/menu_insert_blank_page" />
+        <TextView
+            style="@style/EditorMenuRowLabel"
+            android:text="@string/menu_insert_blank_page" />
+    </LinearLayout>
+</LinearLayout>

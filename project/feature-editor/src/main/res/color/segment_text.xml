@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Segment text color: checked = accent blue, else secondary gray. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="@color/primary_blue" />
+    <item android:color="@color/text_secondary" />
+</selector>

@@ -1,0 +1,5 @@
+# White-list: only the Android project sources and docs are tracked.
+/*
+!/project/
+!/docs/
+!.gitignore

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Milky-white popup card (mirrors feature-editor's bg_popup tokens;
+     module is self-contained so the picker works from any feature). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="20dp" />
+    <solid android:color="#FCFBF9" />
+    <stroke android:width="0.5dp" android:color="#E5E8ED" />
+</shape>

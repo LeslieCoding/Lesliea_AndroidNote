@@ -1,0 +1,44 @@
+pluginManagement {
+    repositories {
+        // China mirrors first for speed, upstream as fallback.
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/") }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/") }
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "LeslieColorOSNote"
+include(":app")
+include(":core-common")
+include(":core-model")
+include(":core-storage")
+include(":core-ink")
+include(":core-render")
+include(":core-search")
+include(":core-security")
+include(":feature-library")
+include(":feature-editor")
+include(":feature-import")
+include(":feature-export")
+include(":feature-audio")
+include(":feature-ocr")
+include(":feature-handwriting")
+include(":feature-search")
+include(":feature-settings")
+include(":document-pdf")
+include(":document-office")
+include(":document-caj")

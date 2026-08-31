@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="editor_top_bar_height">52dp</dimen>
+    <dimen name="editor_toolbar_height">56dp</dimen>
+    <dimen name="editor_tool_button">40dp</dimen>
+    <dimen name="editor_tool_icon">24dp</dimen>
+    <dimen name="editor_thumb_bar_height">108dp</dimen>
+    <dimen name="editor_thumb_width">72dp</dimen>
+    <dimen name="editor_tab_height">36dp</dimen>
+    <dimen name="editor_corner_card">16dp</dimen>
+    <dimen name="editor_corner_small">12dp</dimen>
+    <dimen name="editor_corner_button">10dp</dimen>
+    <dimen name="editor_corner_popup">16dp</dimen>
+</resources>

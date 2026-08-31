@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Original ballpoint: slim body, conical tip, click button -->
+    <path
+        android:pathData="M18.5,5.5 L9,15 L6,18 L5,19 L6,18"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path
+        android:pathData="M18.5,5.5 L20.5,3.5"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M9,15 L5.2,18.8"
+        android:strokeColor="#17181A" android:strokeWidth="2.6"
+        android:strokeLineCap="round" />
+</vector>

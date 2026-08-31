@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One icon+label row for MenuRowPopup; inflated per item. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/EditorMenuRow">
+
+    <ImageView
+        android:id="@+id/row_icon"
+        style="@style/EditorMenuRowIcon" />
+
+    <TextView
+        android:id="@+id/row_label"
+        style="@style/EditorMenuRowLabel" />
+</LinearLayout>

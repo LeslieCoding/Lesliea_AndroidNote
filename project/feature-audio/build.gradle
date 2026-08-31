@@ -1,0 +1,13 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+dependencies {
+    implementation project(":core-common")
+    implementation libs.media3.exoplayer
+    implementation libs.media3.common
+    implementation libs.gson
+    // Offline speech recognition (Vosk small-cn model downloaded at runtime).
+    implementation libs.vosk.android
+}

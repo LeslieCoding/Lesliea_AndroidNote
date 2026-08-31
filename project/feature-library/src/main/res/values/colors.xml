@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design tokens per spec 28.1; mirrors app module tokens so this module
+         stays decoupled from :app. Keep values in sync with app/res/values/colors.xml. -->
+    <color name="app_background">#F8F6F2</color>
+    <color name="surface_primary">#FFFFFF</color>
+    <color name="surface_secondary">#FAFBFC</color>
+    <color name="text_primary">#17181A</color>
+    <color name="text_secondary">#6B7078</color>
+    <color name="border">#E5E8ED</color>
+    <color name="primary_blue">#2F6BFF</color>
+    <color name="primary_blue_pressed">#2457D6</color>
+    <color name="destructive">#D92D20</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Module-local additions -->
+    <color name="primary_blue_container">#E8EFFF</color>
+    <!-- Milky warm white for cards/popups ("奶白高级感") -->
+    <color name="popup_surface">#FCFBF9</color>
+    <color name="segment_track">#F1F2F4</color>
+    <!-- Placeholder palette for documents without a thumbnail -->
+    <color name="thumb_placeholder_1">#EEF2FF</color>
+    <color name="thumb_placeholder_2">#EAF6EF</color>
+    <color name="thumb_placeholder_3">#FDF3E7</color>
+    <color name="thumb_placeholder_4">#FBEEF0</color>
+
+    <!-- "+" sheet icon tiles: pastel tile bg + accent glyph (iPad-style soft palette) -->
+    <color name="ni_tile_blue">#E8EFFF</color>
+    <color name="ni_glyph_blue">#2F6BFF</color>
+    <color name="ni_tile_violet">#F0EBFD</color>
+    <color name="ni_glyph_violet">#7A5AF8</color>
+    <color name="ni_tile_amber">#FBF0DC</color>
+    <color name="ni_glyph_amber">#D9962B</color>
+    <color name="ni_tile_teal">#E2F4EF</color>
+    <color name="ni_glyph_teal">#279E85</color>
+    <color name="ni_tile_red">#FBE9E6</color>
+    <color name="ni_glyph_red">#DE5246</color>
+    <color name="ni_tile_word">#E6EFFB</color>
+    <color name="ni_glyph_word">#3B7DD8</color>
+    <color name="ni_tile_orange">#FDECE0</color>
+    <color name="ni_glyph_orange">#E07B39</color>
+    <color name="ni_tile_green">#E6F4E8</color>
+    <color name="ni_glyph_green">#3E9B57</color>
+    <color name="ni_tile_pink">#FBEAF2</color>
+    <color name="ni_glyph_pink">#D1599B</color>
+    <color name="ni_tile_indigo">#ECECFA</color>
+    <color name="ni_glyph_indigo">#6C6CD0</color>
+    <color name="ni_tile_cyan">#E3F3F8</color>
+    <color name="ni_glyph_cyan">#3898B4</color>
+    <color name="ni_tile_gray">#EFF0F4</color>
+    <color name="ni_glyph_gray">#6B7280</color>
+</resources>

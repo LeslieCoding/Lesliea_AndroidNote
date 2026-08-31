@@ -1,0 +1,28 @@
+plugins {
+    alias(libs.plugins.android.library)
+}
+apply from: rootProject.file("gradle/android-module.gradle")
+
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                // Required by exportSchema = true; schemas are committed for migration tests.
+                argument("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+    }
+    testOptions {
+        // core-common's AppLogger routes through android.util.Log, which is a
+        // stub in local JVM tests; return defaults instead of throwing.
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    implementation project(":core-common")
+    implementation project(":core-model")
+    implementation libs.room.runtime
+    implementation libs.gson
+    annotationProcessor libs.room.compiler
+}

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="EditorToolButton">
+        <item name="android:layout_width">@dimen/editor_tool_button</item>
+        <item name="android:layout_height">@dimen/editor_tool_button</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
+        <item name="android:background">@drawable/bg_tool_button</item>
+        <item name="android:tint">@color/tool_icon_tint</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="EditorAuxButton">
+        <item name="android:layout_width">@dimen/editor_tool_button</item>
+        <item name="android:layout_height">@dimen/editor_tool_button</item>
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:tint">@color/text_secondary</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <!-- Aux-popup grid cell: icon over label, rounded ripple. -->
+    <style name="EditorAuxItem">
+        <item name="android:layout_width">64dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:background">@drawable/bg_popup_item</item>
+    </style>
+
+    <style name="EditorAuxItemIcon">
+        <item name="android:layout_width">26dp</item>
+        <item name="android:layout_height">26dp</item>
+        <item name="android:tint">@color/text_primary</item>
+    </style>
+
+    <style name="EditorAuxItemLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <!-- More-menu panel rows: icon + label + trailing state. -->
+    <style name="EditorMenuRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">46dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:layout_marginEnd">4dp</item>
+        <item name="android:background">@drawable/bg_popup_item</item>
+    </style>
+
+    <style name="EditorMenuRowIcon">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_marginEnd">14dp</item>
+        <item name="android:tint">@color/text_secondary</item>
+    </style>
+
+    <style name="EditorMenuRowLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- Trailing check mark in menu rows (tinted accent, hidden by default). -->
+    <style name="EditorMenuCheck">
+        <item name="android:layout_width">18dp</item>
+        <item name="android:layout_height">18dp</item>
+        <item name="android:src">@drawable/ic_check</item>
+        <item name="android:tint">@color/primary_blue</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
+    <!-- Slim premium seekbar: thin blue progress, small white knob. -->
+    <style name="EditorSeekBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:progressDrawable">@drawable/seekbar_progress</item>
+        <item name="android:thumb">@drawable/seekbar_thumb</item>
+        <item name="android:maxHeight">16dp</item>
+        <item name="android:minHeight">16dp</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+    </style>
+
+    <!-- Pill option inside a segmented RadioGroup (no radio dot). -->
+    <style name="EditorSegment">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">2dp</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/segment_text</item>
+        <item name="android:background">@drawable/bg_segment_item</item>
+    </style>
+
+    <!-- Light-gray track behind a segmented RadioGroup. -->
+    <style name="EditorSegmentTrack">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:padding">3dp</item>
+        <item name="android:background">@drawable/bg_segment_track</item>
+    </style>
+
+    <style name="EditorPopupLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.06</item>
+        <item name="android:layout_marginTop">14dp</item>
+        <item name="android:layout_marginStart">2dp</item>
+    </style>
+</resources>

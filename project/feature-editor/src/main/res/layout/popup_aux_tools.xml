@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Insert-tools panel ("+" toolbar button). Premium card: caption + 5x2 grid
+     of icon-over-label cells. Wired in EditorFragment.showAuxPopup(). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_popup">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="6dp"
+        android:text="@string/aux_more_tools"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary" />
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="5">
+
+        <LinearLayout
+            android:id="@+id/btn_aux_image"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_image"
+                android:contentDescription="@string/aux_image" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_image" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_textbox"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_textbox"
+                android:contentDescription="@string/aux_text_box" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_text_box" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_shape"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_shape"
+                android:contentDescription="@string/aux_shape" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_shape" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_tape"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_tape"
+                android:contentDescription="@string/aux_tape" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_tape" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_sticker"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_sticker"
+                android:contentDescription="@string/aux_sticker" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_sticker" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_ocr"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_ocr"
+                android:contentDescription="@string/aux_ocr" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_ocr" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_handwriting"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_handwriting"
+                android:contentDescription="@string/aux_handwriting" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_handwriting" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_recording"
+            style="@style/EditorAuxItem">
+            <ImageView
+                android:id="@+id/img_aux_recording"
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_mic"
+                android:tint="@color/text_secondary"
+                android:contentDescription="@string/aux_recording" />
+            <TextView
+                android:id="@+id/txt_aux_recording"
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_recording" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_stt"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_handwriting"
+                android:contentDescription="@string/aux_speech_to_text" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_speech_to_text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btn_aux_page"
+            style="@style/EditorAuxItem">
+            <ImageView
+                style="@style/EditorAuxItemIcon"
+                android:src="@drawable/ic_aux_page"
+                android:contentDescription="@string/aux_page_tools" />
+            <TextView
+                style="@style/EditorAuxItemLabel"
+                android:text="@string/aux_page_tools" />
+        </LinearLayout>
+    </GridLayout>
+</LinearLayout>

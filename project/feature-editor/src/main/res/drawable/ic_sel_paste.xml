@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Original paste icon: clipboard with top clip and two text lines -->
+    <path
+        android:pathData="M6,5.5 L4.8,5.5 L4.8,20.5 L19.2,20.5 L19.2,5.5 L18,5.5"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round" />
+    <path
+        android:pathData="M9,3.5 L15,3.5 L15,7 L9,7 Z"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineJoin="round" />
+    <path
+        android:pathData="M8.5,11.5 L15.5,11.5 M8.5,15.5 L13.5,15.5"
+        android:strokeColor="#17181A" android:strokeWidth="1.4"
+        android:strokeLineCap="round" />
+</vector>

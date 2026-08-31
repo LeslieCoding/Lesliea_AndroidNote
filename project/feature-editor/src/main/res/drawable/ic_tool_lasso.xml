@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <!-- Original lasso: irregular freehand loop with a small tail -->
+    <path
+        android:pathData="M12.5,4.2 C7.5,3.8 4,7 4.2,10.8 C4.4,14.8 8.5,17.2 12.6,16.9 C16.6,16.6 19.8,14.2 19.8,10.6 C19.8,7.4 16.8,5 13.2,4.6"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M12.6,16.9 L11.2,20.2 M12.6,16.9 L14.6,19.6"
+        android:strokeColor="#17181A" android:strokeWidth="1.6"
+        android:strokeLineCap="round" />
+</vector>
