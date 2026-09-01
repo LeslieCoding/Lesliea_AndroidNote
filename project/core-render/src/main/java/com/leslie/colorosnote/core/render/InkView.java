@@ -844,6 +844,12 @@ public class InkView extends View {
                     dx, dy, x0, y0, w0, liveJoinOut);
             if (kind == StrokeGeometry.JOIN_TRIANGLE) {
                 appendPolygon(path, liveJoinOut, 3);
+                // v3.2.10: same inner-crescent fill as the committed mesh — the
+                // bevel patches only the OUTER corner, leaving the inner notch
+                // where the two quads meet open; the minimum-width fountain pen
+                // read that as white tears while writing. The knot disc fills
+                // the crescent without changing the outer silhouette.
+                addRoundDisc(path, x0, y0, w0);
             } else if (kind == StrokeGeometry.JOIN_ROUND) {
                 addRoundDisc(path, x0, y0, w0);
             }
