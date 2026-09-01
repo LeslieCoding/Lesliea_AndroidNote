@@ -1,17 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Original pen-nib glyph, not derived from any third-party brand asset. -->
+<!-- v3.2.22 launcher foreground: original abstract nib design with a
+     close-set, silver metal ball tip. No drop shadow; the upper-left highlight
+     and radial tonal falloff give the ball its material definition. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- metal ball tip: radial silver gradient (highlight upper-left) -->
+    <path
+        android:pathData="M54,26 m-3.8,0 a3.8,3.8 0 1,0 7.6,0 a3.8,3.8 0 1,0 -7.6,0">
+        <aapt:attr xmlns:aapt="http://schemas.android.com/aapt"
+            name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="0.32"
+                android:centerY="0.30"
+                android:gradientRadius="0.6"
+                android:startColor="#FFFFFF"
+                android:centerColor="#E5E7EB"
+                android:endColor="#9CA3AF" />
+        </aapt:attr>
+    </path>
+    <!-- bright specular highlight dot on the ball -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,24 L74,64 L54,88 L34,64 Z" />
+        android:pathData="M53,24 m-1.2,0 a1.2,1.2 0 1,0 2.4,0 a1.2,1.2 0 1,0 -2.4,0" />
+
+    <!-- left tine: bright white, tapered up to the tip at (54,30) -->
     <path
-        android:fillColor="#2F6BFF"
-        android:pathData="M54,58 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,30 L50,84 L34,62 Z" />
+
+    <!-- right tine: soft indigo-white for a cut-plane light/dark contrast -->
     <path
-        android:fillColor="#2F6BFF"
-        android:pathData="M53,62 L55,62 L55,84 L53,84 Z" />
+        android:fillColor="#C7D2FE"
+        android:pathData="M54,30 L58,84 L74,62 Z" />
+
+    <!-- gold breather hole inside the tine split -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M54,72 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
 </vector>
