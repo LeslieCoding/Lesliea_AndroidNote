@@ -559,8 +559,26 @@ public final class PageRenderer {
                     cx, cy, mesh.widths[i], join);
             if (kind == StrokeGeometry.JOIN_TRIANGLE) {
                 appendPolygon(path, join, 3);
+                // v3.2.10: the bevel only patches the OUTER corner; the INNER
+                // crescent (where the two quads meet with different normals)
+                // stays open. A thick pen hides it, but the fountain pen at its
+                // 1.13pt minimum made it read as white tears. A round knot disc
+                // fills the crescent without changing the outer silhouette.
+                addRoundDisc(path, cx, cy, mesh.widths[i]);
             } else if (kind == StrokeGeometry.JOIN_ROUND) {
                 addRoundDisc(path, cx, cy, mesh.widths[i]);
+            } else {
+                // Nearly straight runs normally need no knot disc (the quads
+                // tile seamlessly), but a sharp width ramp — e.g. the pen's
+                // end taper — can still leave an unfilled inner notch; fill it
+                // only where the width actually changes.
+                float wPrev = mesh.widths[i - 1];
+                float wNext = mesh.widths[i + 1];
+                float lo = Math.min(wPrev, wNext);
+                float hi = Math.max(wPrev, wNext);
+                if (lo <= 0f || hi / lo > 1.5f) {
+                    addRoundDisc(path, cx, cy, mesh.widths[i]);
+                }
             }
         }
         if (n > 0) {
