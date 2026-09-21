@@ -98,6 +98,38 @@ public class StrokeSmootherTest {
     }
 
     /**
+     * v4.0.0: on pen-up the final sample snaps to the RAW lift position. The
+     * 1€ filter and the pull-string both lag the pen by design; a smoothed
+     * last point ends the stroke short of where the nib actually lifted (at
+     * deep zoom the gap is dozens of screen px — the "stroke tail is stolen"
+     * report). {@link StrokeSmoother#flush} must return the raw coordinates
+     * exactly and re-seed the filter so a continued stroke goes on from
+     * there.
+     */
+    @Test
+    public void flush_snapsToRawLiftPosition() {
+        StrokeSmoother s = new StrokeSmoother();
+        s.configure(preset(0.5f, 0.2f)); // both lag sources active
+        s.reset();
+        long t0 = 1_000_000L;
+        s.process(0f, 0f, 0.5f, t0, null);
+        float[] out = null;
+        float rawX = 0f;
+        for (int i = 1; i <= 200; i++) { // fast ramp: smoothed output lags
+            rawX = 600f * (i * 4) / 1000f;
+            out = s.process(rawX, 0f, 0.5f, t0 + i * 4L, null);
+        }
+        float laggedX = out[0];
+        out = s.flush(rawX + 3f, 2f, 0.6f, t0 + 804L, null);
+        assertEquals(rawX + 3f, out[0], 1e-4f);
+        assertEquals(2f, out[1], 1e-4f);
+        assertTrue("smoothed output really was lagging", laggedX < rawX + 3f);
+        // A continued stroke goes on from the snapped position, no jump back.
+        out = s.process(rawX + 3f, 2f, 0.6f, t0 + 808L, null);
+        assertEquals(rawX + 3f, out[0], 0.5f);
+    }
+
+    /**
      * v2.0.0: POS_BETA 0.05 -> 0.07 and DCUTOFF 1 -> 2Hz. On the same 600
      * units/s 240Hz ramp the v1.4.21 constants trail 2.82 units; the new
      * constants trail 2.08 (simulation-verified). Require < 2.4 units so the

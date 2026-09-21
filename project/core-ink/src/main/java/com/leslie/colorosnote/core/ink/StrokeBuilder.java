@@ -276,6 +276,13 @@ public final class StrokeBuilder {
     private boolean handlePointerUp(MotionEvent event) {
         int pointerId = event.getPointerId(event.getActionIndex());
         if (pointerId == activePointerId && stroking) {
+            int index = findPointerIndex(event);
+            if (index >= 0) {
+                StrokePoint last = readSample(event, index, -1, true);
+                if (last != null) {
+                    points.add(last);
+                }
+            }
             finishStroke();
             // Remaining fingers are treated as resting palm: reject the rest.
             gestureRejected = true;
@@ -287,7 +294,13 @@ public final class StrokeBuilder {
         if (stroking) {
             int index = findPointerIndex(event);
             if (index >= 0) {
-                StrokePoint last = readSample(event, index, -1);
+                // v4.0.0: the final sample snaps to the RAW lift position.
+                // The smoother (1€ filter + pull-string) lags the pen by
+                // design, so a smoothed last point ends the stroke short of
+                // where the nib actually lifted — at deep zoom the gap is
+                // dozens of screen px and the tail of every stroke looked
+                // stolen. The committed stroke ends where the pen really was.
+                StrokePoint last = readSample(event, index, -1, true);
                 if (last != null) {
                     points.add(last);
                 }
@@ -352,6 +365,16 @@ public final class StrokeBuilder {
      * fully populated, smoothed StrokePoint in page coordinates.
      */
     private StrokePoint readSample(MotionEvent event, int pointerIndex, int historyPos) {
+        return readSample(event, pointerIndex, historyPos, false);
+    }
+
+    /**
+     * @param snapToRaw true only for the pen-up sample: bypass the smoother's
+     *                  tracking lag so the stroke ends at the real lift
+     *                  position (v4.0.0, see {@link StrokeSmoother#flush})
+     */
+    private StrokePoint readSample(MotionEvent event, int pointerIndex, int historyPos,
+                                   boolean snapToRaw) {
         boolean historical = historyPos >= 0;
         float viewX = historical ? event.getHistoricalX(pointerIndex, historyPos)
                 : event.getX(pointerIndex);
@@ -381,7 +404,9 @@ public final class StrokeBuilder {
         pressureSource.onSample(raw);
         float resolved = pressureSource.resolvePressure(rawPressure, speed);
 
-        float[] smoothed = smoother.process(page[0], page[1], resolved, time, null);
+        float[] smoothed = snapToRaw
+                ? smoother.flush(page[0], page[1], resolved, time, null)
+                : smoother.process(page[0], page[1], resolved, time, null);
 
         StrokePoint p = new StrokePoint();
         p.x = smoothed[0];

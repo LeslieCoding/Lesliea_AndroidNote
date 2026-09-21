@@ -152,10 +152,15 @@ public final class EditorGestureController implements View.OnTouchListener {
     private float stylusDownX;
     private float stylusDownY;
     private boolean stylusMoved;
+    /** Disarm radius for the long-press-erase shortcut (see constructor). */
+    private final float stylusLongPressSlop;
     /** Movement tracking while erasing (slop threshold). */
     private float eraseDownX;
     private float eraseDownY;
     private boolean eraseMoved;
+    /** True when erase was entered via stylus long-press: the first wipe
+     *  waits for real movement past the hold point (v4.0.0). */
+    private boolean eraseRequiresMove;
     private final Runnable stylusLongPressRunnable = this::onStylusLongPressTimeout;
 
     public EditorGestureController(Context context, Host host, InkView inkView,
@@ -164,6 +169,13 @@ public final class EditorGestureController implements View.OnTouchListener {
         this.inkView = inkView;
         this.overlay = overlay;
         tapSlop = ViewConfiguration.get(context).getScaledTouchSlop() * 2f;
+        // v4.0.0: the stylus long-press-erase disarm radius must be much
+        // smaller than tapSlop. tapSlop (2x scaled slop, ~44px) spans a whole
+        // character at 1000% zoom, so careful slow writing never exceeded it
+        // within the 500ms dwell: the shortcut fired mid-stroke, cancelled
+        // the in-progress stroke and erased nearby ink ("笔画被偷掉").
+        stylusLongPressSlop =
+                ViewConfiguration.get(context).getScaledTouchSlop() * 0.5f;
         scaleDetector = new ScaleGestureDetector(context,
                 new ScaleGestureDetector.SimpleOnScaleGestureListener() {
                     @Override
@@ -402,9 +414,11 @@ public final class EditorGestureController implements View.OnTouchListener {
                     if (idx >= 0) {
                         float dx = event.getX(idx) - stylusDownX;
                         float dy = event.getY(idx) - stylusDownY;
-                        // v1.1.9: standard 1x touch slop. The brief 3x slop
-                        // let slow small handwriting fire the eraser shortcut.
-                        if (dx * dx + dy * dy > tapSlop * tapSlop) {
+                        // v4.0.0: disarm on a small stylus-specific slop, not
+                        // tapSlop — any real writing motion cancels the
+                        // shortcut before it can fire (see constructor doc).
+                        if (dx * dx + dy * dy
+                                > stylusLongPressSlop * stylusLongPressSlop) {
                             stylusMoved = true;
                             inkView.removeCallbacks(stylusLongPressRunnable);
                         }
@@ -523,9 +537,19 @@ public final class EditorGestureController implements View.OnTouchListener {
         if (!eraseMoved) {
             float dx = event.getX(idx) - eraseDownX;
             float dy = event.getY(idx) - eraseDownY;
-            if (dx * dx + dy * dy > tapSlop * tapSlop) {
+            float slop = eraseRequiresMove ? stylusLongPressSlop : tapSlop;
+            if (dx * dx + dy * dy > slop * slop) {
                 eraseMoved = true;
             }
+        }
+        // v4.0.0: a long-press-entered erase erases nothing until the pen
+        // actually leaves the hold point. A false trigger (pause while
+        // writing) followed by tremor or a lift then costs zero ink; only a
+        // deliberate drag starts wiping.
+        if (eraseRequiresMove && !eraseMoved) {
+            overlay.setEraserCursor(event.getX(idx), event.getY(idx),
+                    host.eraserConfig().radius * host.viewport().getScale());
+            return true;
         }
         // Delta of PAGE-space samples for this move event (screen list unused).
         List<Float> delta = new ArrayList<>();
@@ -619,6 +643,13 @@ public final class EditorGestureController implements View.OnTouchListener {
     /**
      * Stylus long-press fired: the pen stroke that barely started is cancelled
      * and the rest of this gesture erases (temporary tool, reverts on lift).
+     *
+     * <p>v4.0.0: do NOT erase at the down point here. If the timer fired on a
+     * false trigger (a slow careful stroke that never left the disarm radius),
+     * wiping the ink under the pen is exactly the "笔画被偷掉" damage. Erasing
+     * now starts only when the pen actually moves (the first MOVE delta in
+     * {@link #moveErase}), so a mistaken hold-and-lift costs nothing but the
+     * cancelled, sub-slop stroke start.
      */
     private void onStylusLongPressTimeout() {
         if (state != State.WRITE_PASSTHROUGH || stylusMoved) {
@@ -630,8 +661,11 @@ public final class EditorGestureController implements View.OnTouchListener {
         host.onTemporaryToolBegin(EditorTool.ERASER);
         temporaryToolActive = true;
         state = State.ERASE;
+        eraseDownX = stylusDownX;
+        eraseDownY = stylusDownY;
+        eraseMoved = false;
+        eraseRequiresMove = true;
         host.onEraseBegin();
-        host.onEraseDelta(pagePoint(stylusDownX, stylusDownY));
         overlay.setEraserCursor(stylusDownX, stylusDownY,
                 host.eraserConfig().radius * host.viewport().getScale());
     }
@@ -640,6 +674,7 @@ public final class EditorGestureController implements View.OnTouchListener {
         eraseDownX = event.getX(index);
         eraseDownY = event.getY(index);
         eraseMoved = false;
+        eraseRequiresMove = false;
         EraserConfig config = host.eraserConfig();
         state = config.mode == com.leslie.colorosnote.core.ink.EraserEngine.Mode.AREA
                 ? State.AREA_ERASE : State.ERASE;

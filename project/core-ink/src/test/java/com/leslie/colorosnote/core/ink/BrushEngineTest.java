@@ -172,6 +172,50 @@ public class BrushEngineTest {
         assertTrue(mesh.closedOutline().length >= 6);
     }
 
+    /**
+     * v4.0.0: a tap with slight pen drift (total length below half the pen
+     * width) sits inside BOTH taper ramps at once, and after the centerline
+     * weld only the two endpoints survive — both at the taper minimum — so
+     * the dot rendered as a sub-pixel hairline ("1000% 下打点有时候消失").
+     * Dot-scale strokes skip the tapers and render at full pen width.
+     */
+    @Test
+    public void driftedDot_skipsTapersAndStaysFullWidthAtDeepZoom() {
+        BrushPreset pen = BrushPreset.fountainPen(); // tapers on, baseWidth 3
+        List<StrokePoint> dot = new ArrayList<>();
+        dot.add(new StrokePoint(50f, 50f, 0L, 0.5f));
+        dot.add(new StrokePoint(50.3f, 50.2f, 4L, 0.5f));
+        dot.add(new StrokePoint(50.5f, 50.4f, 8L, 0.5f));
+        StrokeMesh mesh = BrushEngine.computeMesh(dot, pen, 12.5f); // 1000% zoom
+        float max = 0f;
+        for (float w : mesh.widths) {
+            max = Math.max(max, w);
+        }
+        assertTrue("drifted dot renders at (near) full pen width, not a hairline",
+                max >= pen.minWidth * 0.9f);
+    }
+
+    /**
+     * v4.0.0: the live stroke applies the visible-width floor once more AFTER
+     * the start taper, so a tap — which lives its whole life at the taper
+     * minimum — stays on screen while it is drawn.
+     */
+    @Test
+    public void liveDot_visibleFloorAppliesAfterStartTaper() {
+        BrushPreset pen = BrushPreset.fountainPen();
+        pen.baseWidth = 1f; // taper minimum 0.2 — below the floor without the fix
+        pen.pressureEnabled = false;
+        pen.pressureToWidth = 0f;
+        pen.velocityToWidth = 0f; // width == baseWidth before the taper
+        BrushEngine engine = new BrushEngine();
+        engine.setMinVisibleWidthPage(0.5f); // exaggerated floor: proves the clamp
+        engine.beginStroke(pen);
+        float w = engine.addPoint(new StrokePoint(50f, 50f, 0L, 0.5f), null)[2];
+        engine.endStroke();
+        assertTrue("first live point sits at the taper minimum but stays visible",
+                w >= 0.5f - 1e-6f);
+    }
+
     @Test
     public void ballpoint_constantWidthNoTaperRegardlessOfPressure() {
         BrushPreset preset = BrushPreset.ballpoint();

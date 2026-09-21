@@ -200,6 +200,8 @@ public final class PageContinuousAdapter
         private int stylusPointerId = -1;
         private boolean moved;
         private boolean erasing;
+        /** Erase-start gate after the long-press fires (v4.0.0). */
+        private boolean eraseMoved;
         private final Runnable longPressRunnable = this::onLongPressTimeout;
         private InkView view;
 
@@ -210,15 +212,20 @@ public final class PageContinuousAdapter
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             InkView inkView = (InkView) v;
-            // v1.1.9: standard long-press semantics (1x touch slop). The
-            // v1.1.7 3x slop let slow small handwriting stay "stationary"
-            // for 500ms and fire the eraser mid-writing.
+            // v4.0.0: disarm at HALF the scaled touch slop. 1x slop (~22px)
+            // spans several strokes of a character at 1000% zoom, so careful
+            // slow writing stayed "stationary" for the 500ms dwell and the
+            // eraser fired mid-writing — cancelling the in-progress stroke
+            // and wiping nearby ink ("笔画被偷掉"). The erase-start gate below
+            // uses the full 1x slop.
             float slopPx = ViewConfiguration.get(v.getContext()).getScaledTouchSlop();
+            float disarmSlop = slopPx * 0.5f;
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                     this.view = inkView;
                     moved = false;
                     erasing = false;
+                    eraseMoved = false;
                     stylusPointerId = -1;
                     if (event.getToolType(0) == MotionEvent.TOOL_TYPE_STYLUS
                             && eraseCallback != null) {
@@ -251,6 +258,20 @@ public final class PageContinuousAdapter
                         return erasing;
                     }
                     if (erasing) {
+                        // v4.0.0: after the long-press fires, erasing starts
+                        // only once the pen leaves the hold point (1x slop).
+                        // A false trigger followed by tremor or a lift then
+                        // costs zero ink; only a deliberate drag wipes.
+                        if (!eraseMoved) {
+                            float gx = event.getX(idx) - downX;
+                            float gy = event.getY(idx) - downY;
+                            if (gx * gx + gy * gy > slopPx * slopPx) {
+                                eraseMoved = true;
+                            } else {
+                                showCursor(inkView, event.getX(idx), event.getY(idx));
+                                return true;
+                            }
+                        }
                         float[] delta = collectPageDelta(inkView, event, idx);
                         if (delta.length >= 2) {
                             eraseCallback.onContinuousEraseDelta(page, delta);
@@ -261,7 +282,7 @@ public final class PageContinuousAdapter
                     if (!moved) {
                         float dx = event.getX(idx) - downX;
                         float dy = event.getY(idx) - downY;
-                        if (dx * dx + dy * dy > slopPx * slopPx) {
+                        if (dx * dx + dy * dy > disarmSlop * disarmSlop) {
                             moved = true;
                             inkView.removeCallbacks(longPressRunnable);
                         }
@@ -324,13 +345,13 @@ public final class PageContinuousAdapter
                 return;
             }
             erasing = true;
+            eraseMoved = false;
             if (inkView.getStrokeBuilder() != null) {
                 inkView.getStrokeBuilder().cancelStroke();
             }
             eraseCallback.onContinuousEraseBegin(page);
-            float[] pt = new float[2];
-            inkView.getViewport().screenToPage(downX, downY, pt);
-            eraseCallback.onContinuousEraseDelta(page, pt);
+            // v4.0.0: no erase at the down point — a false trigger must cost
+            // zero ink. The first wipe waits for real movement (see MOVE).
             showCursor(inkView, downX, downY);
         }
 

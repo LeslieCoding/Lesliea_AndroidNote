@@ -479,8 +479,22 @@ public final class PageRenderer {
         if (!(scale > 0f) || !Float.isFinite(scale)) {
             return false; // unknown transform: never cull
         }
-        float[] b = stroke.computeBounds();
-        float diagonalPx = (float) Math.hypot(b[2] - b[0], b[3] - b[1]) * scale;
+        // v4.0.0: measure the stroke's INK, not its point spread. A tap dot
+        // has (nearly) coincident points — zero-size bounds — but renders a
+        // brush-width disc. Point-spread alone measured it as zero, so every
+        // dot was culled from the next re-render (base rebake / window /
+        // pan): the pen-up commit had drawn it straight into the bitmap, but
+        // any zoom change re-rendered the page and the dot vanished.
+        float pad = stroke.brushPreset != null
+                ? Math.max(stroke.brushPreset.maxWidth, stroke.brushPreset.baseWidth)
+                : 0f;
+        return isBelowVisibleDetail(scale, stroke.computeBounds(), pad);
+    }
+
+    /** Pure decision core (unit-testable): bounds + brush width vs threshold. */
+    static boolean isBelowVisibleDetail(float scale, float[] b, float widthPad) {
+        float diagonalPx = (float) Math.hypot(
+                (b[2] - b[0]) + widthPad, (b[3] - b[1]) + widthPad) * scale;
         return diagonalPx < MIN_VISIBLE_STROKE_PX;
     }
 

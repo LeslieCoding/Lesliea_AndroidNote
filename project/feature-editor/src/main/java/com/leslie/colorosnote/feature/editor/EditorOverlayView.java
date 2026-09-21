@@ -28,6 +28,7 @@ public final class EditorOverlayView extends View {
     private final Paint resizeGlyphPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint moveFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint eraserPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint eraserFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path lassoPath = new Path();
     private final RectF selectionRect = new RectF();
 
@@ -92,9 +93,14 @@ public final class EditorOverlayView extends View {
         moveFillPaint.setColor(0xFFFF8A3D);
         moveFillPaint.setShadowLayer(3f, 0f, 1f, 0x40FF8A3D);
 
+        // v4.0.1: opaque — a 50%-alpha ring read as "maybe still a pen";
+        // the user could not tell the eraser was active. Solid white disc +
+        // solid gray outline, same look as InkView's eraser cursor.
+        eraserFillPaint.setStyle(Paint.Style.FILL);
+        eraserFillPaint.setColor(0xFFFFFFFF);
         eraserPaint.setStyle(Paint.Style.STROKE);
         eraserPaint.setStrokeWidth(1.5f);
-        eraserPaint.setColor(0x806B7078);
+        eraserPaint.setColor(0xFF6B7078);
 
         flashFillPaint.setStyle(Paint.Style.FILL);
         flashFillPaint.setColor(0xFF2F6BFF);
@@ -230,6 +236,7 @@ public final class EditorOverlayView extends View {
             drawResizeHandle(canvas, selectionRect.right, selectionRect.bottom);
         }
         if (eraserVisible) {
+            canvas.drawCircle(eraserX, eraserY, eraserRadiusPx, eraserFillPaint);
             canvas.drawCircle(eraserX, eraserY, eraserRadiusPx, eraserPaint);
         }
         drawFlash(canvas);

@@ -367,7 +367,10 @@ public class InkView extends View {
         livePaint.setStyle(Paint.Style.FILL);
         float dp = getResources().getDisplayMetrics().density;
         eraserCursorFill.setStyle(Paint.Style.FILL);
-        eraserCursorFill.setColor(0x59FFFFFF); // translucent milk-white fill
+        // v4.0.1: translucent -> opaque. At 35% alpha the disc barely read
+        // against the page and the user could not tell the eraser was the
+        // active tool; a solid milk-white disc + solid outline is obvious.
+        eraserCursorFill.setColor(0xFFFFFFFF); // opaque milk-white fill
         eraserCursorStroke.setStyle(Paint.Style.STROKE);
         eraserCursorStroke.setStrokeWidth(1.5f * dp);
         eraserCursorStroke.setColor(0xFF8A8F98); // soft gray outline
@@ -1496,9 +1499,59 @@ public class InkView extends View {
 
     /** Draws one finished stroke into the page's offscreen bitmap. */
     private void commitStrokeToBitmap(Stroke stroke) {
+        // v4.0.0 diag (region-loss investigation): strokes whose ink lies
+        // fully outside the page are clipped from every layer — invisible.
+        // Coarse facts only, per the logging contract (no coordinate bulk).
+        if (page != null) {
+            float[] pb = stroke.computeBounds();
+            if (pb[2] < 0f || pb[0] > page.width || pb[3] < 0f || pb[1] > page.height) {
+                AppLogger.w(TAG, "commit: stroke fully outside page bounds (invisible)");
+            }
+        }
+        // v4.0.0: draw into the active window FIRST, before the base-null
+        // early return. The old order skipped the window draw whenever the
+        // base bitmap was (re)rendering, so a stroke committed in that window
+        // of time vanished from the sharp layer until the next re-render.
+        //
+        // v3.2.9: the window is updated by re-meshing the stroke geometry
+        // (the same BrushEngine.computeMesh the base commit and every
+        // pan/zoom re-render use), never by blitting the live bake. The live
+        // stroke has no end taper — the 笔锋 needs the full stroke length, so
+        // BrushEngine applies it only at commit — while the committed mesh
+        // does; the old blit therefore left the window WITHOUT the 笔锋 until
+        // the next pan re-render re-meshed it WITH the 笔锋, which read as
+        // "写完平移后笔迹变化（末尾突然出现笔锋）". Re-meshing at pen-up shows
+        // the 笔锋 the instant the pen lifts and keeps the window identical to
+        // the base and to every later re-render, so panning never changes ink.
+        WindowLayer win = windowLayer;
+        boolean winOwns = win != null && page != null
+                && page.id.equals(windowPageId) && !win.bitmap.isRecycled();
+        if (winOwns) {
+            float[] b = stroke.computeBounds();
+            RenderScalePolicy.WindowSpec s = win.spec;
+            boolean hit = b[2] + 4f >= s.left && b[0] - 4f <= s.right
+                    && b[3] + 4f >= s.top && b[1] - 4f <= s.bottom;
+            if (hit) {
+                Canvas wc = new Canvas(win.bitmap);
+                wc.scale(s.scale, s.scale);
+                wc.translate(-s.left, -s.top);
+                uiCommitRenderer.drawStroke(wc, stroke);
+            } else {
+                AppLogger.d(TAG, "commit: stroke misses window rect");
+            }
+            // Count the stroke as covered by the window even when it misses
+            // the window rect entirely (nothing to draw there): the count
+            // gates the v1.4.15 base-clip, and a non-intersecting stroke
+            // leaves the window's content just as complete.
+            win.strokeCount++;
+        }
         BakedPage baked = pageBitmaps.get(page != null ? page.id : null);
         if (baked == null || baked.bitmap.isRecycled()) {
-            return; // initial render still running; it includes this stroke
+            // Initial render still running; it (or its swap-time delta patch)
+            // includes this stroke.
+            AppLogger.d(TAG, "commit: base bitmap not ready, base draw deferred");
+            liveBakedValid = false;
+            return;
         }
         // v3.2.4: always commit by re-meshing the stroke geometry at the baked
         // layer's own scale. The old fast path blitted the SCREEN-resolution
@@ -1511,43 +1564,10 @@ public class InkView extends View {
         // zoomed. Re-meshing from the same page-space points with the same
         // base scale always yields identical ink at every zoom.
         liveBakedValid = false;
-        WindowLayer win = windowLayer;
         Canvas c = new Canvas(baked.bitmap);
         c.scale(baked.scale, baked.scale);
         uiCommitRenderer.drawStroke(c, stroke);
         baked.strokeCount++;
-        // v3.2.9: update the window by re-meshing the stroke geometry (the
-        // same BrushEngine.computeMesh the base commit and every pan/zoom
-        // re-render use), never by blitting the live bake. The live stroke has
-        // no end taper — the 笔锋 needs the full stroke length, so BrushEngine
-        // applies it only at commit — while the committed mesh does; the old
-        // blit therefore left the window WITHOUT the 笔锋 until the next pan
-        // re-render re-meshed it WITH the 笔锋, which read as "写完平移后笔迹
-        // 变化（末尾突然出现笔锋）". Re-meshing at pen-up shows the 笔锋 the
-        // instant the pen lifts and keeps the window identical to the base and
-        // to every later re-render, so panning no longer changes the ink.
-        if (win != null && page != null
-                && page.id.equals(windowPageId)
-                && !win.bitmap.isRecycled()) {
-            float[] b = stroke.computeBounds();
-            RenderScalePolicy.WindowSpec s = win.spec;
-            boolean hit = b[2] + 4f >= s.left && b[0] - 4f <= s.right
-                    && b[3] + 4f >= s.top && b[1] - 4f <= s.bottom;
-            if (hit) {
-                Canvas wc = new Canvas(win.bitmap);
-                wc.scale(s.scale, s.scale);
-                wc.translate(-s.left, -s.top);
-                uiCommitRenderer.drawStroke(wc, stroke);
-            }
-        }
-        // Count the stroke as covered by the window even when it misses the
-        // window rect entirely (nothing to draw there): the count gates the
-        // v1.4.15 base-clip, and a non-intersecting stroke leaves the
-        // window's content just as complete.
-        if (win != null && page != null && page.id.equals(windowPageId)
-                && !win.bitmap.isRecycled()) {
-            win.strokeCount++;
-        }
     }
 
     /** Returns or creates the offscreen bitmap; full render runs off-thread. */

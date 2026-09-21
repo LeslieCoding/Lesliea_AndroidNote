@@ -63,8 +63,28 @@ public final class BrushEngine {
     private static final float NIB_STRENGTH = 0.8f;
     /** Taper lengths are this multiple of baseWidth at taper == 1. */
     private static final float TAPER_LENGTH_MULTIPLE = 10f;
-    /** Width floor at the very tip of a taper (fraction of full width). */
-    private static final float TAPER_MIN_FACTOR = 0.05f;
+    /**
+     * Width floor at the very tip of a taper (fraction of full width).
+     * v4.0.0: 0.05 -> 0.20. At 5% the tapered tip of a thin pen is far under
+     * one device pixel (0.05 x 1.2u = 0.075px at fit zoom) and anti-aliases
+     * away to nothing, so every stroke looked cut short of where the pen
+     * actually lifted — the "笔锋写到那里却没渲染出来" report. A real nib
+     * leaves a fine but visible hairline; 20% keeps the fade-out character
+     * while staying renderable at every zoom.
+     */
+    private static final float TAPER_MIN_FACTOR = 0.20f;
+    /**
+     * Strokes shorter than this fraction of baseWidth are dots: tapers are
+     * skipped entirely (v4.0.0). A tap with slight pen drift has a total
+     * length inside BOTH taper ramps at once, and after the centerline weld
+     * only the two endpoints survive — both sitting at the taper minimum —
+     * so the whole dot rendered at TAPER_MIN_FACTOR of an already thin pen
+     * and vanished ("1000% 下打点有时候消失"). A zero-drift tap was fine
+     * (tapers need a nonzero length), which is why it only happened
+     * sometimes. A mark shorter than half its own width is a dot and should
+     * render as a full-width blob.
+     */
+    private static final float DOT_TAPER_SKIP_LENGTH = 0.5f;
     /** Each taper ramp may cover at most this fraction of the stroke length. */
     private static final float MAX_TAPER_FRACTION = 0.35f;
     /** Ink is never rendered thinner than this many device pixels. */
@@ -110,10 +130,12 @@ public final class BrushEngine {
     /**
      * Live visible-width floor in page units (v3.2.2). The committed mesh
      * raises pressure-collapsed widths below one device pixel so they are
-     * visible; the live stroke must apply the SAME floor, and it must be
-     * applied BEFORE the tapers so the fountain-pen tip still tapers to
-     * nothing (a 0.5pt tip is normally invisible — the pen body must not
-     * be). Set by the renderer from the current viewport scale; 0 = no
+     * visible; the live stroke must apply the SAME floor. It is applied both
+     * BEFORE the tapers (so a collapsed body stays readable) and once more
+     * AFTER the live start taper (v4.0.0, so a tap — which lives entirely at
+     * the taper minimum — stays visible while it is drawn; the floor is one
+     * device pixel, so normal stroke heads still fade).
+     * Set by the renderer from the current viewport scale; 0 = no
      * floor (default, keeps old behavior for non-UI callers).
      */
     private float minVisibleWidthPage;
@@ -164,6 +186,14 @@ public final class BrushEngine {
             }
             float len = preset.taperStart * preset.baseWidth * TAPER_LENGTH_MULTIPLE;
             width *= taperFactorStart(liveDistanceFromStart, len);
+            // v4.0.0: floor AFTER the live taper as well. A tap spends its
+            // whole life at distance ~0 inside the start ramp, i.e. at the
+            // taper minimum of an already floored width — sub-pixel — so the
+            // live dot was invisible until pen-up replaced it with the
+            // committed mesh. One device pixel keeps the fade on normal
+            // stroke heads (they outgrow the floor within a few samples)
+            // while a dot stays on screen as it is drawn.
+            width = Math.max(width, minVisibleWidthPage);
         }
         out[0] = p.x;
         out[1] = p.y;
@@ -226,6 +256,13 @@ public final class BrushEngine {
         float totalLength = distFromStart[n - 1];
         float startLen = preset.taperStart * preset.baseWidth * TAPER_LENGTH_MULTIPLE;
         float endLen = preset.taperEnd * preset.baseWidth * TAPER_LENGTH_MULTIPLE;
+        // v4.0.0: a dot-scale stroke (tap with slight drift) skips the tapers
+        // — both its surviving knots sit at the taper minimum and the whole
+        // mark vanishes; see DOT_TAPER_SKIP_LENGTH.
+        if (totalLength < preset.baseWidth * DOT_TAPER_SKIP_LENGTH) {
+            startLen = 0f;
+            endLen = 0f;
+        }
         // v3.2.0: a taper may never consume the whole stroke.
         //
         // The lengths above depend only on the preset, never on how long the

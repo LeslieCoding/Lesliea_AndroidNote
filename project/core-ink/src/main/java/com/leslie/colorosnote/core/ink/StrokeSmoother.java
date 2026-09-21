@@ -253,6 +253,43 @@ public final class StrokeSmoother {
         return out;
     }
 
+    /**
+     * v4.0.0: snaps every filter and the pull-string anchor to a raw position
+     * and returns it as {x, y, pressure}. Called exactly once per stroke, on
+     * pen-up, with the true lift coordinates.
+     *
+     * <p>Both smoothing stages lag the real pen by design: the 1€ filter by
+     * its tracking lag (grows with speed) and the pull-string by its radius.
+     * During the stroke that lag is invisible — the next sample closes it —
+     * but the LAST smoothed sample stops short of where the pen actually
+     * lifted, and at deep zoom the gap is dozens of screen pixels: cursive
+     * strokes looked cut off before their true endpoint ("笔锋写到了那里却
+     * 没有渲染出来"). The committed stroke must end at the real lift
+     * position, so the final point bypasses the lag entirely. Pressure still
+     * goes through its filter (a snapped pressure would jitter the tail
+     * width; position is what the user sees).
+     */
+    public float[] flush(float x, float y, float pressure, long timestampMs,
+                         float[] out) {
+        if (out == null || out.length < 3) {
+            out = new float[3];
+        }
+        if (!hasOutput) {
+            return process(x, y, pressure, timestampMs, out);
+        }
+        anchorX = x;
+        anchorY = y;
+        filterPosition.seed(x, y, timestampMs);
+        outX = x;
+        outY = y;
+        outPressure = filterEnabled
+                ? filterPressure.filter(pressure, timestampMs) : pressure;
+        out[0] = outX;
+        out[1] = outY;
+        out[2] = outPressure;
+        return out;
+    }
+
     /** Rotation-invariant 2D One Euro filter with a shared vector-speed cutoff. */
     private static final class OneEuro2D {
         private float mincutoff;
