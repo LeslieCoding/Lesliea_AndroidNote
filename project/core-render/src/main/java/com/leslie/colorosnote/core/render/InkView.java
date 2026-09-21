@@ -367,7 +367,7 @@ public class InkView extends View {
         livePaint.setStyle(Paint.Style.FILL);
         float dp = getResources().getDisplayMetrics().density;
         eraserCursorFill.setStyle(Paint.Style.FILL);
-        // v4.0.1: translucent -> opaque. At 35% alpha the disc barely read
+        // v4.0.5: translucent -> opaque. At 35% alpha the disc barely read
         // against the page and the user could not tell the eraser was the
         // active tool; a solid milk-white disc + solid outline is obvious.
         eraserCursorFill.setColor(0xFFFFFFFF); // opaque milk-white fill

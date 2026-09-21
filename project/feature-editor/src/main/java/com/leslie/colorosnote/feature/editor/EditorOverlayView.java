@@ -93,7 +93,7 @@ public final class EditorOverlayView extends View {
         moveFillPaint.setColor(0xFFFF8A3D);
         moveFillPaint.setShadowLayer(3f, 0f, 1f, 0x40FF8A3D);
 
-        // v4.0.1: opaque — a 50%-alpha ring read as "maybe still a pen";
+        // v4.0.5: opaque — a 50%-alpha ring read as "maybe still a pen";
         // the user could not tell the eraser was active. Solid white disc +
         // solid gray outline, same look as InkView's eraser cursor.
         eraserFillPaint.setStyle(Paint.Style.FILL);
